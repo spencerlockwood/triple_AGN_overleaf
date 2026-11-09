@@ -1,0 +1,939 @@
+\documentclass[twocolumn, 10pt]{article}
+% \documentclass[twocolumn]{aastex631}
+
+\usepackage{csquotes}
+\usepackage{titlesec}
+%\titleformat*{\section}{\Huge\bfseries}
+
+\titleformat{\section}[block]
+  {\normalfont\sc\centering\large}
+  {\thesection.}
+  {0.5em}
+  {}
+\titleformat{\subsection}[block]
+  {\normalfont\sc\centering}
+  {\thesubsection.}
+  {0.5em}
+  {}
+\titleformat{\subsubsection}[block]
+  {\normalfont\itshape\centering}
+  {\thesubsubsection.}
+  {0.5em}
+  {}
+
+
+\usepackage[english]{babel}
+
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{xspace}
+\usepackage{float}
+
+\usepackage{xcolor}
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+
+
+
+\usepackage[
+backend=biber,
+style=numeric,
+sorting=none,
+natbib=true
+]{biblatex}
+\addbibresource{references.bib}
+
+\title{Properties of Triple AGNs in Cosmological Simulations: Insights from Romulus25}
+\author{Spencer Lockwood \\ \small Supervisors: Dr. Arif Babul, Dr. Vida Saeedzadeh}
+
+\date{June 2026}
+
+\begin{document}
+\onecolumn          % switch to single column
+\tableofcontents
+\newpage
+%\newcommand{\tripleAGN}{\textsc{triple AGN}\xspace}
+
+\twocolumn[
+\begin{@twocolumnfalse}
+\maketitle
+
+\begin{abstract}
+Hierarchical galaxy formation naturally predicts the existence of systems hosting multiple supermassive black holes (SMBHs), and when gas is available, such systems may manifest as multiple active galactic nuclei (AGN). While dual AGNs have been studied extensively in both observations and simulations, triple AGN systems remain relatively unexplored, despite their importance for further understanding things like SMBH dynamics and merger-driven accretion. Recent observational discoveries of nearby kpc-scale triple AGNs have highlighted the need for theoretical predictions that place these rare systems in a broader cosmological context. In this work, we investigate the properties of triple AGN systems in the Romulus25 cosmological hydrodynamical simulation. Romulus25 uniquely incorporates a physically motivated treatment of unresolved dynamical friction, enabling SMBHs to remain coupled to their host galaxies and to interact down to sub-kiloparsec scales. Building on previous analyses of dual AGNs in Romulus, we identify candidate triple AGN systems using AGN bolometric luminosity and spatial proximity criteria motivated by observations. We explore how the incidence and properties of triple AGNs depend on luminosity thresholds and spatial selection cuts, and we examine their redshift evolution, SMBH properties, separations, and system environments. The simulated triple AGN population is analyzed with constraints from observational systems, allowing us to assess how selection limits shape the observed sample. By providing a systematic census of triple AGNs in a cosmological simulation, this study aims to establish a theoretical baseline for interpreting current observations and to generate predictions that can guide future searches for multi-AGN systems in future surveys.
+
+\end{abstract}
+\vspace{1em} 
+\end{@twocolumnfalse}
+]
+  
+% ============================================================
+%  Section 1 — Introduction
+%  Triple AGNs in Romulus25 | Spencer Lockwood
+%  Placeholders marked with \todo{} — fill before submission
+% ============================================================
+ 
+\section{INTRODUCTION}
+\label{sec:intro}
+ 
+% ------------------------------------------------------------
+\subsection{Hierarchical Galaxy Formation and Supermassive Black Holes}
+\label{subsec:hierarchy}
+ 
+The current standard model of cosmological structure formation is hierarchical: small overdensities in the early Universe collapse first, and progressively larger structures assemble over time through the repeated merging of smaller progenitors. Within this framework, galaxies are not isolated, static objects, but rather the continually evolving products of a long history of accretion, interaction, and merger events. The visible galaxies we observe today bear the imprints of this long assembly history.
+ 
+At the centre of nearly every sufficiently massive galaxy lies a supermassive black hole (SMBH), with masses ranging from $\sim 10^6$ to $\sim 10^{10}\,M_\odot$ \citep{KormendyHo2013}. The co-existence of hierarchical galaxy assembly and ubiquitous central SMBHs has a straightforward but profound implication. Whenever two galaxies merge, their central black holes are brought into the same gravitational potential and will eventually interact. If both SMBHs are accreting at the time of or shortly after the merger, the system will appear as a pair of active galactic nuclei (AGN) within a single host galaxy. The detection and characterisation of such multiple-AGN systems therefore provides a direct observational window into the process of galaxy merging and SMBH co-evolution across cosmic time.
+ 
+The tight empirical scaling relations between SMBH mass and the properties of the host galaxy bulge, including the well-known $M_\mathrm{BH}$--$\sigma$ and $M_\mathrm{BH}$--$M_\star$ relations imply that black holes and their host galaxies do not evolve independently. Mergers are believed to be among the primary drivers of this co-evolution, channelling large quantities of gas toward galactic centres, simultaneously fuelling star formation and SMBH accretion, and potentially triggering the powerful AGN feedback episodes that quench star formation in massive galaxies. Understanding how, when, and under what conditions this cycle of merging and accretion operates is therefore central to understanding galaxy evolution as a whole.
+ 
+% ------------------------------------------------------------
+\subsection{Dual AGNs: Mergers in Action}
+\label{subsec:dual_agns}
+ 
+The simplest manifestation of a merger-driven multiple-AGN system is a \textit{dual AGN}. These are systems of two SMBHs, each accreting above some luminosity threshold, residing within the same galaxy or galaxy pair. The study of dual AGNs has expanded substantially over the past two decades, driven by improvements in both observational capability and the sophistication of theoretical models \citep[see][]{DeRosa2019}.
+ 
+Observationally, dual AGNs have been identified across a wide range of separations and redshifts, using techniques spanning optical spectroscopy, X-ray imaging \citep[e.g.][]{Foord2020}, radio interferometry, and more recently near-infrared integral field spectroscopy. These studies have collectively established that dual AGNs are closely associated with galaxy merger activity, tend to reside in more massive and gas-rich host halos than single AGNs of comparable luminosity, and show a broad range of SMBH mass and luminosity ratios between the two members. The fraction of AGNs that are part of a dual system has been found to rise toward higher redshifts, broadly consistent with the increasing rate of galaxy interactions at earlier cosmic times.
+ 
+From a theoretical standpoint, cosmological simulations have become an important tool for interpreting the observed dual AGN population and placing it in its broader evolutionary context. Early work established that galaxy mergers can trigger AGN activity in both nuclei simultaneously, though the detailed triggering efficiency depends sensitively on the host galaxy mass ratio, gas content, and orbital geometry. More recently, large-volume hydrodynamical simulations have enabled statistical studies of dual AGN demographics across cosmic time.
+ 
+A particularly thorough investigation of dual AGNs in Romulus25 was carried out by \citet{Saeedzadeh2024}, whose work forms the direct theoretical predecessor to the present study. Using the canonical luminosity threshold of $L_\mathrm{bol} > 10^{43}\,\mathrm{erg\,s^{-1}}$ and a neighbour search radius of $30\,\mathrm{kpc}$, \citeauthor{Saeedzadeh2024} identified and characterised the dual AGN population in Romulus25 across the redshift range $0 \leq z \leq 2$. Their analysis established that all dual AGNs in the simulation could be traced back to major galaxy mergers with typical mass ratios of $\sim 2.2:1$; that dual AGN host halos are systematically more massive and gas-rich than single AGN hosts; and that approximately 70\% of SMBH pairs in dual systems eventually merge, with the remaining 30\% stalling in long-lived binary configurations or being dynamically ejected. Crucially, \citeauthor{Saeedzadeh2024} also identified a population of triple and even quadruple AGN systems in Romulus25 (systems with more than two simultaneously active SMBHs within $30\,\mathrm{kpc}$ of one another), but these higher-order multiples were explicitly set aside as a subject for future work due to their low statistical representation at the $10^{43}\,\mathrm{erg\,s^{-1}}$ threshold. The present study takes up precisely that thread, extending the Romulus25 framework to a systematic census of triple AGNs.
+ 
+% ------------------------------------------------------------
+\subsection{Triple AGNs: The Next Step in Hierarchical Assembly}
+\label{subsec:triple_theory}
+ 
+Triple AGN systems arise naturally in the hierarchical picture when a galaxy that already hosts a pair of SMBHs, possibly themselves the remnant of a prior merger, subsequently merges with a third SMBH-bearing galaxy. Alternatively, a triple configuration can form through the nearly simultaneous infall of two companion galaxies onto a central host, for instance in a compact group environment. In both scenarios, the result is a system of three active nuclei within a common gravitational potential, interacting dynamically on timescales set by the orbital decay of each pair.
+ 
+The theoretical interest in triple SMBH systems extends well beyond their role as signposts of ongoing mergers. A longstanding challenge in the theory of SMBH binary evolution is the so-called ``final parsec problem''. Once a SMBH binary has hardened to separations of order a parsec through dynamical friction and stellar scattering, the loss-cone of stars becomes depleted and further orbital decay stalls, potentially preventing coalescence on cosmological timescales \citep{Begelman1980}. The introduction of a third SMBH into the system can break this deadlock. Three-body gravitational interactions between the bound binary and the infalling third body can efficiently exchange energy and angular momentum, re-hardening the binary and dramatically accelerating its approach to coalescence \citep[e.g.][]{Bonetti2018}. In some configurations, the third body may be ejected from the system entirely, carrying away energy that drives the remaining pair to merge on a timescale far shorter than would otherwise be possible. Triple SMBH interactions therefore represent one of the most physically promising resolutions to the final parsec problem, with direct implications for predictions of the nano-hertz gravitational wave background accessible to Pulsar Timing Arrays.
+ 
+Simulations of large cosmic volumes have suggested that close encounters between three massive SMBHs can produce episodes of dramatically enhanced accretion, contributing to a faster-than-Eddington effective growth rate for the most massive members \citep[e.g.][]{Ni2022}. Understanding the frequency and properties of triple AGN systems is therefore relevant not only to the merger-driven assembly of galaxies but also to some of the most extreme objects in the Universe.
+ 
+% ------------------------------------------------------------
+\subsection{Observational Discoveries of Triple AGNs}
+\label{subsec:triple_obs}
+ 
+Despite this considerable theoretical interest, the observational census of triple AGN systems remains extremely limited. The observational identification of triple AGN systems is considerably more challenging than finding dual AGNs. Beyond the general difficulty of resolving multiple nuclei at small angular separations, three-body systems are intrinsically rarer and occupy a narrower region of observational parameter space. Detection typically requires a combination of high-resolution imaging (to spatially resolve the three nuclei), multi-wavelength coverage (to distinguish AGN emission from star formation), and spectroscopic confirmation (to verify that all three components lie at the same redshift and show AGN-like emission). As a result, confirmed triple AGN systems remain few in number.
+ 
+The first confirmed triple quasar was reported by \citet{Djorgovski2007}, identifying three quasar components at $z \approx 2.076$ with projected separations of order tens of kpc. Since then, a small but growing body of confirmed or candidate systems at lower redshift and smaller separations has accumulated. \citet{Pfeifle2019} presented the most robust nearby confirmation to date. SDSS\,J0849+1114, a late-stage triple galaxy merger in which all three nuclei were detected in both optical imaging and Chandra X-ray observations, establishing it as a bona fide triple AGN with separations of order a few kpc. A systematic search for triple AGN candidates was subsequently conducted by \citet{Foord2020}, who applied Chandra follow-up observations to a sample of optically selected triple galaxy merger candidates, finding that a non-trivial fraction showed evidence for multi-nuclear X-ray emission.
+ 
+More recently, \citet{Keshri2025} reported the discovery of a triple AGN system in the NGC\,7733--34 compact galaxy group, identified through a combination of optical integral-field spectroscopy and X-ray data, in which all three nuclei exhibit AGN activity within a projected separation of $\sim 20$\,kpc. This discovery highlighted that compact group environments, not just late-stage major mergers, can develop into triple AGN configurations. The growing number of known systems shows the importance of studying triple AGNs not as exotic outliers, but as a physically meaningful (and possibly underdetected) population with genuine implications for SMBH assembly and galaxy evolution.
+ 
+% ------------------------------------------------------------
+\subsection{The Discovery of UGC 2369S and the Motivation for This Study}
+\label{subsec:koss}
+ 
+The immediate observational catalyst for this project was the discovery of a kpc-scale triple merger candidate in the nearby luminous infrared galaxy UGC\,2369S, reported by \citet{Ding2025}. UGC\,2369S is a disturbed infrared-bright system showing clear signatures of a multi-body merger, and the \citeauthor{Ding2025} analysis identified three distinct nuclear components at kpc-scale separations, with multi-wavelength properties consistent with simultaneous AGN activity in all three nuclei.
+ 
+The existence of systems like UGC\,2369S, SDSS\,J0849+1114, and NGC\,7733--34 raises an immediate and natural theoretical question. How common are triple AGN configurations across cosmic time, and what are their typical properties? The observational sample available today is far too small and heterogeneous to answer this question empirically. The confirmed systems span a wide range of separations, luminosities, and environments, and were identified through a variety of techniques with very different selection functions. We need a theoretical baseline. Something from a physically motivated cosmological simulation, of how many triple AGN systems should exist at different redshifts, how they are distributed in luminosity and separation, and what kinds of host environments they prefer. Such a baseline would both give context to the observed systems and provide quantitative targets for upcoming wide-field surveys.
+ 
+This is the gap that this project aims to fill. Building directly on the dual AGN analysis of \citet{Saeedzadeh2024}, we extend the Romulus25 framework to a systematic census of triple AGNs across the full redshift range accessible in the simulation. The Romulus25 simulation is uniquely strong for this purpose for several reasons. Its physically motivated sub-grid model for dynamical friction allows all three SMBHs in a triple system to evolve on realistic orbital timescales, without the artificial merging that would occur if SMBHs were repositioned to potential minima. Its relatively low AGN luminosity threshold (made possible by the simulation's high mass and force resolution) means that triple systems composed of low-luminosity nuclei, like those observed in UGC\,2369S and SDSS\,J0849+1114, can be recovered and studied. And its cosmological volume, while modest by the standards of some other large-scale simulations, is sufficient to yield a statistically meaningful triple AGN sample at a wide range of redshifts.
+ 
+
+% ------------------------------------------------------------
+\subsection{This Work}
+\label{subsec:this_work}
+
+In this paper, we present the first systematic census of triple AGN systems in the Romulus25 cosmological simulation, extending the dual AGN framework of \citet{Saeedzadeh2024} to the case of three simultaneously active SMBHs. Our analysis spans the redshift range $0 \leq z \leq 3$, uses every available simulation snapshot without temporal subsampling, and adopts a fiducial bolometric luminosity threshold of $L_\mathrm{bol} > 10^{40}\,\mathrm{erg\,s^{-1}}$, motivated by the low-luminosity character of the known observational triple AGN sample. We apply a neighbour-search algorithm with a $30\,\mathrm{kpc}$ search radius and compare the resulting population to the small but growing sample of confirmed and candidate triple AGN systems in the literature, including UGC\,2369S \citep{Ding2025}, SDSS\,J0849+1114 \citep{Pfeifle2019}, SDSS\,J1027+1749 \citep{Liu2011}, and NGC\,7733--34 \citep{Keshri2025}.
+
+For each identified system we characterise the SMBH masses, bolometric luminosities, pairwise separations, host halo masses, and system lifetimes of all three members. We classify the Host (most massive), Neighbour~1 (N1), and Neighbour~2 (N2) by decreasing SMBH mass. We examine how these properties evolve with redshift and depend on the choice of luminosity threshold and separation cut.
+
+The key findings can be summarised as follows. Triple AGN systems are a natural and recurring product of hierarchical galaxy assembly in Romulus25, with their number density rising steadily from $z = 0$ to $z \approx 3$, mirroring the global rise in AGN activity. They are physically compact, with median pairwise separations of 2.9, 3.2, and 3.8\,kpc for the Host--N1, Host--N2, and N1--N2 pairs respectively, considerably more compact than the currently confirmed observational sample, implying a large population inaccessible to existing surveys. The SMBH mass distribution is strongly asymmetric. The Host is typically one to two orders of magnitude more massive than either neighbour, while N1 and N2 are drawn from a very similar near-seed-mass population. This demonstrates that triple AGN formation does not require (and may in some cases \textit{precede}) significant growth of the secondary and tertiary SMBHs. The majority (61\%) of unique triple AGN systems are single-snapshot detections, reflecting the transient character of low-luminosity triple activity, while the multi-snapshot population has a median lifetime of $1.44\,\mathrm{Gyr}$ and a long tail extending to $\sim 11\,\mathrm{Gyr}$.
+
+The paper is organized as follows. Section~\ref{sec:methods} describes the Romulus25 simulation, our AGN selection criteria, the triple AGN identification algorithm, and the methodology used to compare the simulated population with observations. Section~\ref{sec:results} presents all results, including the redshift evolution of the triple AGN population (Sections~\ref{subsec:agn_population}--\ref{subsec:frequency}), pairwise separation distributions (Sections~\ref{subsec:separations}--\ref{subsec:sep_halo}), SMBH mass and luminosity properties (Sections~\ref{subsec:bhmass_halo}--\ref{subsec:ratios}), system lifetimes (Section~\ref{subsec:lifetimes}), and a case study of one of the longest-lived systems in the simulation (Section~\ref{subsec:case_study}). Throughout, we adopt the Romulus25 cosmology: $\Omega_m = 0.309$, $\Omega_\Lambda = 0.691$, $H_0 = 67.8\,\mathrm{km\,s^{-1}\,Mpc^{-1}}$. All separations are quoted in physical kiloparsecs and all masses in solar units $M_\odot$.
+
+
+
+% ============================================================
+%  Section 2 — Methods
+%  Triple AGNs in Romulus25 | Spencer Lockwood
+%  Placeholders marked with \todo{} — fill before submission
+% ============================================================
+\newpage
+\section{Methods}
+\label{sec:methods}
+
+% ------------------------------------------------------------
+\subsection{The Romulus25 Simulation}
+\label{subsec:romulus}
+
+This work is based on Romulus25, a cosmological hydrodynamical simulation occupying a $(25\,\mathrm{cMpc})^3$ periodic volume evolved from high redshift to $z = 0$ within a $\Lambda$CDM cosmological framework. The simulation was carried out using the Tree+Smoothed Particle Hydrodynamics code \textsc{ChaNGa}, and adopts cosmological parameters consistent with the Planck 2016 results: $\Omega_m = 0.309$, $\Omega_\Lambda = 0.691$, $\Omega_b = 0.0486$, $H_0 = 67.8\,\mathrm{km\,s^{-1}\,Mpc^{-1}}$, and $\sigma_8 = 0.82$. The mass resolution is $3.39 \times 10^5\,M_\odot$ per dark matter particle and $2.12 \times 10^5\,M_\odot$ per gas particle, with a Plummer-equivalent gravitational force softening of $250\,\mathrm{pc}$ and a maximum SPH resolution of $70\,\mathrm{pc}$. Romulus25 is part of a broader simulation suite whose scientific outputs are described in detail across a number of published works \citep{Tremmel2015, Tremmel2017, Tremmel2019, Tremmel2020, Chadayammuri2020}; we do not reproduce that description here.
+
+What makes Romulus25 very well-suited for the present study is the way it handles the seeding, dynamics, and accretion of supermassive black holes. Each of these aspects is described below.
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{SMBH Seeding}
+\label{subsubsec:seeding}
+
+Many large-volume cosmological simulations seed SMBHs in halos that exceed a prescribed mass threshold, an approach that ties black hole formation to the large-scale growth of structure rather than to the physical conditions of the gas from which they form \citep[e.g.][]{Schaye2015, Weinberger2017, Pillepich2018, Dave2019}. Romulus25 takes a different approach. SMBH seeds form directly from gas particles whose local thermodynamic properties satisfy a set of physically motivated criteria \citep{Tremmel2017}, independently of the halo they reside in.
+
+Specifically, a gas particle that has been selected to form a star is instead converted into a SMBH seed if it simultaneously satisfies: (i) a very low metal fraction ($Z < 3 \times 10^{-4}$); (ii) a density at least 15 times the star formation threshold ($n \geq 3\,m_p\,\mathrm{cc}^{-1}$); and (iii) a temperature in the narrow window $9{,}500$--$10{,}000\,\mathrm{K}$. Together, these conditions select gas that is collapsing rapidly in a metal-poor environment, broadly consistent with the physical conditions predicted for direct-collapse black hole formation. Because the seeding criterion is local, SMBHs in Romulus25 tend to form at high redshift ($z > 5$) and can arise in low-mass halos and even in multiple independent locations within the same halo. Each seed is initialised with a mass of $10^6\,M_\odot$; this value is chosen to be comfortably larger than the individual dark matter and stellar particle masses, which suppresses spurious gravitational scattering events that would otherwise perturb the SMBH from its host \citep{Tremmel2015}. The SMBH occupation fraction that results at $z = 0$ is consistent with current observational constraints, and the simulated $M_\mathrm{BH}$--$M_\star$ relation agrees well with empirical scaling relations \citep{Tremmel2017}.
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{SMBH Dynamics and Mergers}
+\label{subsubsec:dynamics}
+
+One of the most consequential differences between Romulus25 and other large-volume cosmological simulations is how SMBH orbital evolution is handled. A common numerical shortcut is to pin each SMBH to the nearest gravitational potential minimum at every timestep \citep[e.g.][]{Dave2019}. While computationally convenient, this forces SMBHs to merge essentially instantaneously when their host galaxies coalesce, which is physically unrealistic. The actual inspiral of two black holes following a galaxy merger can take hundreds of millions to several billion years, as energy is gradually extracted from the orbit through dynamical friction against the surrounding stellar and dark matter distribution.
+
+Romulus25 instead includes a sub-grid prescription for dynamical friction that operates at scales below the simulation's resolution limit \citep{Tremmel2015}. Under the assumption that the local velocity distribution of surrounding particles is isotropic on scales smaller than the gravitational softening length $\epsilon_g$, Chandrasekhar's classical formula gives the deceleration experienced by a SMBH of mass $M_\bullet$ moving at velocity $\mathbf{v}_\mathrm{BH}$ through the surrounding medium as
+%
+\begin{equation}
+    a_\mathrm{DF} = -4\pi G^2 M_\bullet\,\rho(v < v_\mathrm{BH})\,\ln\Lambda\,\frac{\mathbf{v}_\mathrm{BH}}{v_\mathrm{BH}^3},
+    \label{eq:df}
+\end{equation}
+%
+where $\rho(v < v_\mathrm{BH})$ is the mass density of particles moving more slowly than the SMBH, and the Coulomb logarithm is taken as $\ln\Lambda = \ln(\epsilon_g / r_{90})$, with $r_{90}$ the 90-degree deflection radius \citep{Tremmel2015, Saeedzadeh2024}. The SMBH velocity $\mathbf{v}_\mathrm{BH}$ is measured relative to the local centre-of-mass velocity of the 64 nearest collisionless (star and dark matter) particles. This prescription allows SMBHs to sink realistically toward the centres of their host galaxies following mergers, and to approach one another to separations of $\sim 300\,\mathrm{pc}$ which is below the resolution limit of most comparable simulations. The ability to track SMBH pairs to sub-kpc separations without artificial repositioning is essential for this study, since the internal structure of triple AGN systems and their dynamical evolution depend critically on how accurately the orbits of all three members are followed.
+
+When two SMBHs do come sufficiently close, they are merged in the simulation if two conditions are met. Their physical separation is smaller than twice the gravitational softening length ($0.7\,\mathrm{kpc}$), and they are mutually gravitationally bound according to the criterion $\frac{1}{2}\Delta v^2 < \Delta\mathbf{a} \cdot \Delta\mathbf{r}$, where $\Delta v$, $\Delta\mathbf{a}$, and $\Delta\mathbf{r}$ are the relative velocity, acceleration, and separation vectors between the pair \citep{Bellovary2011, Tremmel2017}. The resulting merged SMBH inherits the combined mass of both progenitors and a momentum-conserving velocity.
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{SMBH Accretion and Feedback}
+\label{subsubsec:growth}
+
+Beyond mergers, SMBHs grow by accreting gas from their surroundings. The accretion rate in Romulus25 is estimated from a modified Bondi--Hoyle--Lyttleton formula \citep{Bondi1952}, evaluated using the smoothed properties of the 32 nearest gas particles \citep{Tremmel2017}. A key improvement over the standard Bondi--Hoyle prescription is the explicit treatment of the gas angular momentum. When the dominant motion of the surrounding gas is rotational rather than radial, centrifugal support reduces the effective accretion radius and therefore suppresses the accretion rate relative to the spherically symmetric estimate \citep{Hopkins2010}. The accretion rate is computed as
+%
+\begin{equation}
+    \dot{M}_\bullet = \alpha \times
+    \begin{cases}
+        \dfrac{\pi (G M_\bullet)^2 \rho_\mathrm{gas}}{(v_\mathrm{bulk}^2 + c_s^2)^{3/2}} & \text{if } v_\mathrm{bulk} > v_\theta, \\[10pt]
+        \dfrac{\pi (G M_\bullet)^2 \rho_\mathrm{gas}\, c_s}{(v_\theta^2 + c_s^2)^{2}} & \text{if } v_\mathrm{bulk} < v_\theta,
+    \end{cases}
+    \label{eq:bondi}
+\end{equation}
+%
+where $\rho_\mathrm{gas}$ is the local gas density, $c_s$ the sound speed, $v_\mathrm{bulk}$ the bulk gas velocity relative to the SMBH, and $v_\theta$ the local rotational velocity of the gas, each evaluated from the 32 nearest gas particles. The boost factor $\alpha$ corrects for the simulation's inability to resolve the multiphase interstellar medium at densities above the star formation threshold $n_{\mathrm{th},\star} = 0.2\,m_p\,\mathrm{cc}^{-1}$, and takes the form
+%
+\begin{equation}
+    \alpha =
+    \begin{cases}
+        \left(\dfrac{n}{n_{\mathrm{th},\star}}\right)^{2} & \text{if } n \geq n_{\mathrm{th},\star}, \\[8pt]
+        1 & \text{if } n < n_{\mathrm{th},\star}.
+    \end{cases}
+    \label{eq:alpha}
+\end{equation}
+%
+In all cases the accretion rate is capped at the Eddington rate. The bolometric luminosity of each SMBH then follows directly as
+%
+\begin{equation}
+    L_\mathrm{bol} = \epsilon_r \dot{M}_\bullet c^2,
+    \label{eq:lbol}
+\end{equation}
+%
+where $\epsilon_r = 0.1$ is the assumed radiative efficiency. A fraction $\epsilon_f = 0.02$ of this radiated energy is coupled thermally and isotropically to the 32 nearest gas particles, providing the AGN feedback that regulates star formation in the host galaxy. For a full description of the accretion and feedback implementation, including the calibration of $\epsilon_r$ and $\epsilon_f$ against observed galaxy scaling relations, we refer the reader to \citet{Tremmel2017}.
+
+% ------------------------------------------------------------
+\subsection{Halo Catalogue and Substructure}
+\label{subsec:halos}
+
+Gravitationally bound structures in Romulus25 are identified using the \textsc{Amiga Halo Finder} \citep[AHF;][]{Knollmann2009}, applied independently to each simulation snapshot. AHF employs adaptive mesh refinement to locate density peaks in the particle distribution, identifies all gravitationally bound particles associated with each peak (spanning dark matter, gas, stars, and SMBHs), and organises the resulting structures into a hierarchy of host halos and nested subhalos. Halo centres are determined iteratively using the shrinking sphere method. The temporal evolution of halos across snapshots is tracked using the \textsc{Tangos} database framework \citep{Pontzen2018}.
+
+Halo masses throughout this work are quoted as $M_{200}$. The total mass enclosed within a sphere of radius $R_{200}$, defined such that the mean interior density equals 200 times the critical density of the universe at the snapshot redshift. For subhalos, AHF determines the boundary by locating the radius at which the external tidal field begins to dominate over the self-gravity of the structure. A spherical-overdensity $M_{200}$ is not well defined for a tidally stripped subhalo, and for the 1.5\% of triple AGN systems whose Host lies in an AHF subhalo the $M_{200}$ calculation does not converge; these systems are excluded from all halo-mass statistics.
+
+Each SMBH is associated with the AHF halo or subhalo that contains it as a gravitationally bound member at a given snapshot, and the properties of that halo or subhalo are recorded. We note that during active galaxy mergers, AHF does not always cleanly deblend the two interacting systems, particularly when significant tidal stripping or gas disruption has occurred. This is a known limitation of halo finders applied to merging systems \citep{Saeedzadeh2024} and is borne in mind when interpreting the host halo properties of closely separated triple AGN configurations.
+
+% ------------------------------------------------------------
+\subsection{AGN Selection}
+\label{subsec:agn_selection}
+
+At each snapshot, a SMBH is classified as an AGN if its instantaneous bolometric luminosity, computed from Equation~\ref{eq:lbol}, exceeds a minimum threshold $L_\mathrm{bol,\,min}$. Our fiducial threshold is $L_\mathrm{bol} > 10^{40}\,\mathrm{erg\,s^{-1}}$, which is three orders of magnitude below the $10^{43}\,\mathrm{erg\,s^{-1}}$ used by \citet{Saeedzadeh2024} for dual AGNs. The choice of a lower threshold is motivated by the nature of the observed triple AGN population. The few confirmed or candidate systems in the literature are typically composed of low-luminosity, often obscured nuclei rather than luminous quasars, and a threshold of $10^{43}\,\mathrm{erg\,s^{-1}}$ would exclude the majority of the simulated triple systems that could plausibly correspond to these observed counterparts. All luminosities in this work are intrinsic bolometric values; we do not apply any obscuration corrections or band-specific K-corrections unless explicitly stated.
+
+Because the choice of threshold materially affects the number and properties of identified systems, we quantify this sensitivity by repeating the full analysis at $L_\mathrm{bol} > 10^{40}$, $10^{41}$, $10^{42}$, and $10^{43}\,\mathrm{erg\,s^{-1}}$.\todo{only the $10^{40}$ and $10^{42}$ (and $10^{38}$) catalogues currently exist; run $10^{41}$ and $10^{43}$ or revise this list} As expected from the shape of the AGN luminosity function, the total number of triple systems decreases sharply as the threshold is raised. The key structural properties of the triple AGN population (in particular the pairwise separation distributions and the SMBH mass hierarchy among the three members) are however qualitatively stable across this range, which we take as validation of our fiducial choice.
+
+We analyse the 71 Romulus25 snapshots spanning $0 \leq z \leq 3$ with no temporal subsampling. One snapshot, at $z \approx 0.96$, is excluded because its black hole masses and accretion rates are missing from the \textsc{Tangos} database, leaving 70 snapshots that contribute to the census.
+
+% ------------------------------------------------------------
+\subsection{Triple AGN Identification}
+\label{subsec:identification}
+
+Triple AGN systems are identified at each snapshot by applying a neighbour-search to the population of AGN candidates defined in Section~\ref{subsec:agn_selection}. The procedure builds on and extends the dual AGN identification scheme of \citet{Saeedzadeh2024} to the case of three simultaneously active SMBHs.
+
+For every AGN in the snapshot, we compute its three-dimensional physical distance to all other AGNs in the same snapshot and record how many lie within $r_\mathrm{sep} = 30\,\mathrm{kpc}$ of it. AGN are considered in order of decreasing luminosity, and an AGN is flagged as the \textit{centre} of a triple system if it has \textit{exactly two} such neighbours. We impose no constraint on the mutual separation between the two neighbours themselves. They need only each be within $30\,\mathrm{kpc}$ of the centre, not necessarily within $30\,\mathrm{kpc}$ of one another. This reflects the geometry of a dominant central black hole attracting two others that have not yet interacted directly. We also do not allow any AGN to be a part of more than one triple AGN system at any snapshot.
+
+Once a triple system is confirmed, the three members are labelled by decreasing SMBH mass. The most massive is the \textbf{Host}, the next is \textbf{Neighbour~1} (N1), and the least massive is \textbf{Neighbour~2} (N2). Mass-based ranking is preferred over luminosity-based ranking because, at the low luminosity threshold adopted here, accretion rates are highly variable and a purely luminosity-based designation would produce unstable member assignments across adjacent snapshots. The three pairwise separation quantities, Host--N1, Host--N2, and N1--N2, are defined with respect to this ranking and used consistently throughout.
+
+The $30\,\mathrm{kpc}$ search radius was chosen to match the spatial scale used in observational searches for multiple AGN systems, and to be directly comparable to the dual AGN analysis of \citet{Saeedzadeh2024}. Following discussions with observational collaborators, we adopt this search radius, consistent with scales used in observational searches for multiple AGN systems. The qualitative results of this study are not sensitive to the exact value of this cut.
+
+% ------------------------------------------------------------
+\subsection{Derived Quantities}
+\label{subsec:derived}
+
+For each identified triple system, we extract the following properties for all three member SMBHs: mass $M_\mathrm{BH}$, instantaneous bolometric luminosity $L_\mathrm{bol}$, and Eddington ratio $\lambda_\mathrm{Edd} = L_\mathrm{bol} / L_\mathrm{Edd}$, where $L_\mathrm{Edd} = 1.26 \times 10^{38}\,(M_\mathrm{BH}/M_\odot)\,\mathrm{erg\,s^{-1}}$. All three pairwise physical separations (Host--N1, Host--N2, N1--N2) are measured in three-dimensional physical space and quoted in kpc. We additionally compute the logarithmic luminosity and mass ratios between each pair of members, $\log_{10}(L_1/L_2)$ and $\log_{10}(M_1/M_2)$, to quantify the internal symmetry of each system.
+
+Host environment properties, like virial mass $M_{200}$, stellar mass, gas mass, and specific star formation rate, are drawn from the AHF catalogues associated with the halo containing each triple system. These are used to characterise the large-scale environments that give rise to triple AGN configurations and to compare triple AGN host halos to those of dual AGNs and isolated AGNs identified under the same luminosity threshold.
+
+Where appropriate, the simulated triple AGN population is compared to the subset of dual AGNs identified by \citet{Saeedzadeh2024} using the same Romulus25 data, providing a reference against which the additional complexity of triple configurations can be assessed.
+
+% ------------------------------------------------------------
+\subsection{Comparison with Observed Triple AGN Systems}
+\label{subsec:obs_comparison}
+
+At present, only a handful of triple AGN systems have been spectroscopically or imaging-confirmed in the literature. These include the nearby infrared-bright merger candidate UGC\,2369S \citep{Ding2025}; the late-stage merger SDSS\,J0849+1114, confirmed via Chandra X-ray imaging and optical spectroscopy \citep{Pfeifle2019}; the hierarchical group system SDSS\,J1027+1749 \citep{Liu2011}; the compact group NGC\,7733--34 \citep{Keshri2025}; and the first confirmed triple quasar \citep{Djorgovski2007}. Despite the small sample size, these systems span a useful range of separations, luminosities, and redshifts, and serve as an important sanity check on the theoretical predictions from Romulus25.
+
+A complication in making this comparison is that observations are sensitive only to AGN luminosities above some band-specific detection limit, while the simulation produces intrinsic bolometric luminosities. To place both on the same scale, we convert observed fluxes and band-specific luminosities to bolometric values using the luminosity-dependent corrections of \citet{Duras2020}. Even after this step, the comparison is qualitative. The observed triple AGN sample is not the result of a blind survey with a well-defined selection function, but rather a collection of serendipitous or targeted discoveries assembled from heterogeneous datasets. We therefore do not attempt to reproduce the precise selection criteria of individual observations, but instead assess whether the simulated population occupies the same region of luminosity--separation--mass parameter space as the known systems, and identify which parts of the Romulus25 triple AGN population would plausibly have been detectable given the sensitivity limits of current observatories. Constructing tailored mock catalogues matched to the selection functions of specific upcoming surveys including COSMOS-Web, DESI DR1, and the Next-generation X-ray Observatory \citep[AXIS;][]{Foord2023}, is left for future work.
+
+
+
+
+
+
+% ============================================================
+%  Section 3 — Results
+%  Triple AGNs in Romulus25 | Spencer Lockwood
+%  To be built up figure by figure
+% ============================================================
+\newpage
+\section{Results}
+\label{sec:results}
+ 
+We present the results of our systematic census of triple AGN systems in Romulus25 across the redshift range $0 \leq z \leq 3$. We begin by characterising the overall AGN population in Romulus25 and its redshift evolution (Section~\ref{subsec:agn_population}), which establishes the underlying context from which triple AGN systems are drawn. We then examine the occurrence rate of triple AGNs specifically and how it evolves across cosmic time (Section~\ref{subsec:frequency}). Subsequent sections address the internal structure of the systems in terms of their pairwise separation, the masses and luminosities of their constituent SMBHs, and the properties of their host halos. Throughout, we draw comparisons to the dual AGN population of \citet{Saeedzadeh2024} where relevant.
+ 
+% ------------------------------------------------------------
+\subsection{The AGN Population in Romulus25}
+\label{subsec:agn_population}
+ 
+Before examining triple AGN systems specifically, it is instructive to characterise the full AGN population in Romulus25 against which the triple systems are defined. Figure~\ref{fig:agn_stats} shows both the comoving number density of AGNs (left panel) and their absolute counts per snapshot (right panel) as a function of redshift, using our fiducial bolometric luminosity threshold of $L_\mathrm{bol} > 10^{40}\,\mathrm{erg\,s^{-1}}$.
+ 
+Both panels reveal a clear and monotonic increase in AGN activity toward higher redshift. The comoving number density rises from approximately $0.04\,\mathrm{cMpc}^{-3}$ at $z \approx 0$ to roughly $0.16\,\mathrm{cMpc}^{-3}$ at $z \approx 2.5$, an increase of nearly a factor of four over the redshift range probed. The corresponding absolute counts per snapshot rise from $\sim 650$ AGNs at $z \approx 0$ to $\sim 2{,}400$ at $z \approx 2.5$. Because Romulus25 has a fixed comoving volume of $(25\,\mathrm{cMpc})^3$, the comoving number density is directly proportional to the absolute count at each snapshot, and the two panels convey the same underlying trend from complementary perspectives. The smooth, well-sampled nature of both curves reflects the use of every available simulation snapshot without temporal subsampling.
+ 
+The rising trend in AGN number density toward high redshift is consistent with observational constraints on the AGN luminosity function across cosmic time \citep[e.g.][]{Ueda2014}, and reproduces the broad behaviour seen in other cosmological simulations. The physical driver is straightforward. At higher redshifts, galaxies are on average more gas-rich and more active, providing more fuel for SMBH accretion and a higher incidence of the merger and interaction events that can trigger it. This results in a larger fraction of the total SMBH population is accreting above any given luminosity threshold at earlier cosmic times.
+ 
+It is worth noting that the AGN number density at our fiducial threshold of $10^{40}\,\mathrm{erg\,s^{-1}}$ is considerably higher than would be recovered at the $10^{43}\,\mathrm{erg\,s^{-1}}$ threshold used by \citet{Saeedzadeh2024}. Lowering the luminosity cut opens up a much larger population of low-luminosity, sub-quasar SMBHs accreting at modest Eddington fractions. The counts in Figure~\ref{fig:agn_stats} therefore represent the broadest possible parent population from which triple systems can be identified, and the smooth redshift evolution of this population provides the essential baseline against which the more episodic, scatter-dominated behaviour of the triple AGN fraction must be interpreted.
+
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figure1_agn_statistics.jpeg}
+    \caption{AGN population statistics in Romulus25 as a function of redshift, using a fiducial bolometric luminosity threshold of $L_\mathrm{bol} > 10^{40}\,\mathrm{erg\,s^{-1}}$. \textit{Left:} Comoving number density of AGNs (units of $\mathrm{cMpc}^{-3}$), rising smoothly from $\approx 0.04\,\mathrm{cMpc}^{-3}$ at $z \approx 0$ to $\approx 0.16\,\mathrm{cMpc}^{-3}$ at $z \approx 2.5$. \textit{Right:} Absolute AGN counts per snapshot, rising from $\sim 650$ at $z \approx 0$ to $\sim 2{,}400$ at $z \approx 2.5$. Both panels show a monotonic increase in AGN activity toward higher redshift, consistent with the global rise in gas-rich galaxy interactions and SMBH accretion rates at earlier cosmic times. Because Romulus25 has a fixed comoving volume, the two panels convey equivalent information.}
+    \label{fig:agn_stats}
+\end{figure*}
+ 
+% ------------------------------------------------------------
+\subsection{Triple AGN Occurrence Rate and Redshift Evolution}
+\label{subsec:frequency}
+ 
+Having established the behaviour of the overall AGN population, we now turn to the triple AGN systems themselves. Figure~\ref{fig:frequency} shows the number of triple AGN systems identified at each snapshot across the full redshift range $0 \leq z \leq 3$. Applying our fiducial selection criteria, we identify a total of $\mathbf{3{,}266}$ triple AGN system-snapshot occurrences, with a peak instantaneous count of \textbf{90 systems at} $z = 2.93$, corresponding to a lookback time of approximately $11.6\,\mathrm{Gyr}$. A single triple AGN configuration that persists across multiple consecutive snapshots will contribute one count per snapshot in which it satisfies the selection criteria. The number of systems found therefore reflects the cumulative exposure of the Romulus25 volume to triple AGN activity across cosmic time, rather than the total number of distinct merging configurations that ever hosted three simultaneously active SMBHs.
+ 
+The most prominent feature of Figure~\ref{fig:frequency} is the clear rise in triple AGN counts with increasing redshift, mirroring the rise in the total AGN population shown in Figure~\ref{fig:agn_stats}. At low redshift ($z < 0.5$), the instantaneous count sits typically in the range of 13--35 systems per snapshot, whereas at $z \sim 2$--$3$ the counts reach 67--90 systems per snapshot. While there is considerable scatter from snapshot to snapshot, the underlying upward trend is robust across the full redshift range.
+ 
+The contrast in smoothness between Figures~\ref{fig:agn_stats} and~\ref{fig:frequency} is actually physically informative. The total AGN count reflects the behaviour of hundreds to thousands of SMBHs averaged together, naturally producing a smooth trend. The triple AGN count, by contrast, is sensitive to the rare, transient configurations in which exactly three of those SMBHs are simultaneously active and spatially coincident within $30\,\mathrm{kpc}$, making it far more susceptible to shot noise and short-timescale variability in accretion rates. This additional scatter is expected and is consistent with the episodic, duty-cycle-dependent nature of low-luminosity AGN activity at our fiducial threshold.
+ 
+The physical origin of the overall rise in triple AGN counts is the same as for the general AGN population, but amplified by the added requirement of spatial closeness among three simultaneously active members. At higher redshifts, higher galaxy interaction rates, greater gas fractions, and the overall higher density of the universe combine to increase both the total number of active SMBHs and the probability that three of them are found in close spatial proximity at any given moment. Group and compact-pair environments, in which multiple galaxies fall together nearly simultaneously, are more prevalent at earlier times in the hierarchical assembly picture, and it is precisely these environments that are most conducive to triple AGN formation.
+ 
+At fixed comoving box size, the physical volume of the Romulus25 simulation shrinks toward higher redshift, which would naively suppress the number of systems found. The fact that triple AGN counts nevertheless increase with redshift demonstrates that the genuine rise in merger rate and AGN activity more than compensates for this geometric effect. The more dynamically active conditions of the early Universe outweigh the reduction in physical volume sampled, producing a net excess of triple AGN systems at earlier cosmic times.
+ 
+The snapshot-to-snapshot scatter visible in Figure~\ref{fig:frequency} reflects several additional effects beyond simple shot noise. First, AGN activity at the low luminosity threshold of $10^{40}\,\mathrm{erg\,s^{-1}}$ is highly intermittent. A SMBH may cross the threshold in one snapshot and fall below it in the next, even without a dramatic change in the underlying accretion rate, causing individual systems to flicker in and out of the triple AGN classification. Second, the intrinsic lifetimes of triple AGN configurations are short. Once three SMBHs are brought into proximity within a common gravitational potential, the system evolves rapidly. Members will either merge with one another, reducing the multiplicity of the system, or the least tightly bound member may drift beyond the $30\,\mathrm{kpc}$ search radius as the interaction proceeds. In neither case does the triple configuration persist for long. The triple AGN population is therefore constantly being replenished by new merger and interaction events rather than surviving from earlier epochs, and the rapid turnover of individual systems is fully consistent with the overall trend seen in Figure~\ref{fig:frequency}.
+ 
+Taken together, Figures~\ref{fig:agn_stats} and~\ref{fig:frequency} show that triple AGN systems are a natural and recurring product of hierarchical galaxy assembly in Romulus25. Their increasing prevalence toward high redshift, and their short individual lifetimes, point to an underlying population far larger than the current handful of confirmed nearby systems, much of which lies at redshifts and luminosities not yet accessible to systematic observational surveys.
+ 
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{frequency.jpeg}
+    \caption{Number of triple AGN systems identified in Romulus25 at each simulation snapshot as a function of redshift (bottom axis) and lookback time (top axis), using a fiducial bolometric luminosity threshold of $L_\mathrm{bol} > 10^{40}\,\mathrm{erg\,s^{-1}}$ and a neighbour search radius of $30\,\mathrm{kpc}$. The total number of system-snapshot instances is 3,266, with a peak instantaneous count of 90 systems at $z = 2.93$. A single physical triple AGN system persisting across multiple snapshots contributes one count per snapshot. The overall rise toward higher redshift mirrors the global increase in AGN number density shown in Figure~\ref{fig:agn_stats}. The snapshot-to-snapshot scatter reflects both the shot noise inherent to a rare population and the short lifetimes of individual triple configurations.}
+    \label{fig:frequency}
+\end{figure}
+
+
+
+\subsection{Pairwise Separation Distributions}
+\label{subsec:separations}
+ 
+Figure~\ref{fig:separations} shows the distributions of three-dimensional physical separations between all pairs of members within identified triple AGN systems, accumulated across all snapshots and all redshifts from $z = 0$ to $z = 3$. Three pairwise separations are shown. Host--N1 (solid orange), Host--N2 (dashed blue), and N1--N2 (dotted green), with median values of $2.9$, $3.2$, and $3.8\,\mathrm{kpc}$, respectively. As with the frequency counts discussed in Section~\ref{subsec:frequency}, the distributions shown here are not drawn from unique physical systems but rather from all system-snapshot instances over the full redshift range, so a single persistent triple configuration contributes one entry per snapshot in which it is identified.
+ 
+The most noticeable feature of Figure~\ref{fig:separations} is the compactness of the triple AGN population. All three pairwise separation distributions are strongly peaked at separations below $5\,\mathrm{kpc}$, with the large majority of entries falling in the range $1$--$5\,\mathrm{kpc}$ and a steep drop-off at larger separations. The median separations of $2.9$--$3.8\,\mathrm{kpc}$ indicate that, when triple AGN systems are detected in Romulus25, the three members are almost always found within what would be considered the inner few kiloparsecs of their host galaxy system. This is qualitatively consistent with the picture of triple AGNs as configurations that arise in the late stages of galaxy mergers, when the participating galaxies have already lost much of their orbital energy and the three nuclei are deeply embedded in a common potential.
+ 
+The ordering of the three median separations is physically meaningful and follows directly from the mass-based ranking of triple system members. The Host, being the most massive of the three SMBHs, occupies the deepest point of the local gravitational potential. Dynamical friction, which scales with SMBH mass (Equation~\ref{eq:df}), is most efficient at drawing massive objects toward the potential minimum, so the Host is preferentially found closest to the centre of the merging system. N1, the second most massive member, has sunk further than N2 toward the Host under the same process, producing the observed trend Host--N1 $<$ Host--N2 $<$ N1--N2. The N1--N2 separation is the largest of the three because these two neighbours are not required to be close to one another by our identification criteria and their mutual distance therefore reflects a wider range of orbital configurations, from systems where both neighbours are nearly co-located to those where they approach the Host from opposite directions.
+ 
+The long tails of all three distributions, extending from $\sim 5$ to $30\,\mathrm{kpc}$, capture a distinct subset of triple AGN systems. Those caught at an earlier stage of the merger, before significant orbital energy has been dissipated and the three members have fully sunk toward one another. These wide-separation systems are relatively rare, but their presence demonstrates that triple AGN configurations are not exclusively a late-stage phenomenon and can be identified even when the interaction is still in a relatively open configuration.
+ 
+It is notable that the separations found here are considerably more compact than those reported for most observed triple AGN systems. The confirmed and candidate systems in the literature have reported separations ranging from a few kpc to tens of kpc, generally toward the larger end of the range populated in Figure~\ref{fig:separations}. This discrepancy is not surprising and likely reflects two distinct observational biases. First, the angular resolution of current imaging facilities limits the ability to resolve multiple nuclei at sub-kpc separations, particularly at cosmological distances, so close pairs that Romulus25 resolves freely are simply undetectable in practice. Second, confirmed triple AGNs in the observational literature have by necessity been identified in systems where all three components are sufficiently separated to be spatially distinguished, biasing the observed sample toward wider-separation configurations. The simulation predicts that the most common triple AGN configuration (three nuclei within $\sim 3$--$4\,\mathrm{kpc}$ of one another) lies below the resolution threshold of most current surveys, implying that the confirmed observational sample represents only the most spatially extended tail of a much larger and more compact underlying population.
+ 
+This interpretation gives interesting implications for the design of future observational searches. The high concentration of triple AGN separations below $5\,\mathrm{kpc}$ in Romulus25 suggests that the next generation of high-resolution, high-sensitivity instruments such as the Next-generation X-ray Observatory \citep[AXIS;][]{Foord2023} and JWST near-infrared imaging will be essential for probing the regime where the bulk of the predicted triple AGN population resides.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{figure7_separations.jpeg}
+    \caption{Distributions of three-dimensional physical separations between each pair of members in identified triple AGN systems in Romulus25, accumulated across all system-snapshot instances from $z = 0$ to $z = 3$. Three pairwise separations are shown. Host--N1 (solid orange), Host--N2 (dashed blue), and N1--N2 (dotted green), with median values of $2.9$, $3.2$, and $3.8\,\mathrm{kpc}$, respectively, indicated by vertical dashed lines. All three distributions are strongly peaked at separations below $5\,\mathrm{kpc}$, with long tails extending to the $30\,\mathrm{kpc}$ search radius. The ordering of the medians reflects the mass-based ranking. The Host is preferentially found closest to the other members due to the greater efficiency of dynamical friction at higher masses, while N1 and N2 are not required by the identification algorithm to be close to one another, resulting in a larger median N1--N2 separation.}
+    \label{fig:separations}
+\end{figure}
+
+
+\subsection{Separations as a Function of Host Halo Mass and Redshift}
+\label{subsec:sep_halo}
+ 
+The overall separation distributions presented in Section~\ref{subsec:separations} aggregate systems across all halo masses and all redshifts. Figure~\ref{fig:sep_halo} disaggregates these trends, showing how the maximum and minimum pairwise separations within triple AGN systems depend on the virial mass of the host halo, $M_{200}$, separately for six redshift bins spanning $z = 0$ to $z = 3$. In each panel, lines show the median value of the maximum (top) or minimum (bottom) internal separation across all systems in that redshift bin, as a function of host halo mass. This figure therefore captures two complementary dimensions of the triple AGN structure. The overall size of the configuration as traced by its widest pair, and the degree to which at least two members have already drawn close together as traced by the narrowest pair.
+ 
+\subsubsection{Dependence on Host Halo Mass}
+\label{subsubsec:sep_vs_mass}
+ 
+Both panels of Figure~\ref{fig:sep_halo} reveal a mild but consistent positive trend. Triple AGN systems hosted in more massive halos tend to have somewhat larger internal separations, for both the maximum and the minimum pairwise distance. The maximum separation rises from $\sim 4$--$6\,\mathrm{kpc}$ at $\log(M_{200}/M_\odot) \approx 10.6$ to $\sim 5$--$6\,\mathrm{kpc}$ at $\log(M_{200}/M_\odot) \approx 11.4$, depending on redshift, while the minimum separation rises more modestly from $\sim 1.5$--$2\,\mathrm{kpc}$ to $\sim 2$--$2.5\,\mathrm{kpc}$ over the same halo mass range. The trend continues beyond the range plotted: across all redshifts, the median maximum separation reaches $\sim 8\,\mathrm{kpc}$ at $M_{200} \approx 10^{12}\,M_\odot$ and $\sim 10\,\mathrm{kpc}$ at $\approx 10^{12.5}\,M_\odot$. The trend is present across all redshift bins, suggesting it reflects a genuine physical relationship rather than a selection effect at any particular epoch.
+ 
+The most natural interpretation of this is simply that more massive halos are physically larger environments. A more massive dark matter halo has a larger virial radius $R_{200}$ and a deeper potential well, meaning that infalling satellite galaxies carrying SMBHs are orbiting at larger physical radii and with higher velocities before they spiral inward. At any given moment during the merger process, the three SMBHs in a more massive halo are therefore more likely to be found at larger absolute separations, even if the merger is dynamically at the same relative stage as in a lower-mass halo. This is broadly analogous to the well-established result for dual AGNs in \citet{Saeedzadeh2024}, who found that the median neighbour distance increases with host halo mass because higher velocity dispersions in more massive halos extend the orbital decay timescale, keeping SMBHs more widely dispersed for longer.
+ 
+It is also worth noting that the positive trend with halo mass is more pronounced in the maximum separation than in the minimum. This makes physical sense. The maximum separation captures the distance between the least-bound pair in the triple system, which is most sensitive to the large-scale environment and the halo size. The minimum separation, by contrast, reflects the distance between the two most closely interacting members, which is regulated more by the local gas dynamics and the immediate outcome of the most recent pericentric passage than by the overall size of the host halo. As a result, the minimum separation shows a flatter dependence on $M_{200}$ and greater scatter between redshift bins.
+ 
+\subsubsection{Dependence on Redshift}
+\label{subsubsec:sep_vs_z}
+ 
+Beyond the halo mass trend, Figure~\ref{fig:sep_halo} reveals a clear and consistent redshift dependence in the maximum separation. At fixed halo mass, the lowest-redshift systems (dark purple, $z = 0.0$--$0.5$) tend to have larger maximum separations than higher-redshift systems (yellow, $z = 2.5$--$3.0$). This is clearest below $\log(M_{200}/M_\odot) \approx 11.2$, where the lowest-redshift systems are typically $\sim 1\,\mathrm{kpc}$ wider than the other bins; at higher halo masses the redshift bins converge. The minimum separation shows a qualitatively similar but noisier trend, with high-redshift systems again tending toward smaller values.
+ 
+This redshift dependence reinforces the finding from Figure~\ref{fig:separations} that the triple AGN population becomes more spatially compact at higher redshift. Several physical mechanisms may contribute to this behaviour. At earlier cosmic times, the universe is denser overall, and the halos that host triple AGN systems are on average less massive and more compact than their low-redshift counterparts at the same position in the $M_{200}$ distribution. Additionally, the higher gas fractions prevalent at high redshift can accelerate orbital energy dissipation through gas dynamical friction and tidal stripping, potentially driving the three members closer together more rapidly following the initial encounter. The combination of smaller physical halo sizes and more efficient energy loss at high redshift would naturally produce the more compact triple configurations seen at $z > 1.5$.
+ 
+At low redshift, the larger maximum separations may partly reflect a population of triple systems in which one member has been scattered to a wide orbit following a three-body interaction, rather than systems in which the galaxies are still approaching one another for the first time. In this scenario, the minimum separation remains small because two members are still tightly bound, while the third has been flung outward, producing a large maximum separation within the same system. This interpretation is speculative without tracking individual system histories, and evolutionary tracing of specific triple AGN configurations is deferred to future work.
+ 
+Taken together, the halo mass and redshift dependency shown in Figure~\ref{fig:sep_halo} gives consistant results. The physical scale of triple AGN configurations is set primarily by the size of the host environment, with more massive and lower-redshift halos producing somewhat wider configurations on average. In all cases, however, the separations remain within the few-kpc to tens-of-kpc range, confirming that triple AGN systems in Romulus25 are inherently compact objects associated with advanced stages of galaxy merging across the full range of halo masses and redshifts probed.
+ 
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{figure3_halo_mass_vs_separation.png}
+    \caption{Maximum (top) and minimum (bottom) internal pairwise separations within triple AGN systems as a function of the virial mass $M_{200}$ of the halo they host, shown separately for six redshift bins spanning $z = 0$ to $z = 3$. Each line shows the median value of the relevant separation across all systems in that redshift bin at a given halo mass. Both panels show a mild positive trend with halo mass, reflecting the physically larger environments of more massive halos. At fixed redshift, triple AGN systems in higher-mass halos are found at somewhat larger absolute separations. The maximum separation also shows a redshift dependence below $\log(M_{200}/M_\odot) \approx 11.2$, with lower-redshift systems (dark purple) tending to have larger maximum separations than higher-redshift systems (yellow) at fixed halo mass, consistent with the overall compactness of the high-redshift triple AGN population seen in Figure~\ref{fig:separations}. The minimum separation shows a flatter and noisier dependence on both halo mass and redshift, reflecting its greater sensitivity to local gas dynamics near the most closely interacting pair rather than to the global host environment.}
+    \label{fig:sep_halo}
+\end{figure}
+
+
+
+\subsection{Black Hole Masses and Host Halo Properties}
+\label{subsec:bhmass_halo}
+ 
+Figure~\ref{fig:bhmass_halo} shows the SMBH mass $M_\mathrm{BH}$ as a function of host halo virial mass $M_{200}$ for all three members of identified triple AGN systems, accumulated across all redshifts from $z = 0$ to $z = 3$. Each data point represents a single AGN detection in a single snapshot, colour-coded by membership role. Host (orange circles), N1 (cyan squares), and N2 (green triangles). Solid lines show the median $M_\mathrm{BH}$ in bins of $M_{200}$ for each population, and the shaded regions enclose the 16th--84th percentile scatter. The top panel shows the distribution of host halo masses across all identified triple AGN system-snapshot instances.
+ 
+\subsubsection{Strong SMBH Mass Asymmetry Between Host and Neighbours}
+\label{subsubsec:mass_asymmetry}
+ 
+The strongest result visible in Figure~\ref{fig:bhmass_halo} is the mass asymmetry between the Host AGN and its two neighbours across the full range of halo masses probed. The Host median mass rises steeply with $M_{200}$, from a few $\times 10^{6}\,M_\odot$ in the lowest-mass halos to $\sim 10^{8}\,M_\odot$ in halos above $10^{12}\,M_\odot$, and the Host population as a whole spans several decades in $M_\mathrm{BH}$ at any given halo mass. N1 and N2, by contrast, show considerably flatter median trends that remain close to or only slightly above the SMBH seed mass of $10^6\,M_\odot$ across much of the halo mass range. At the lowest halo masses, the median masses of N1 and N2 are indistinguishable from the seed mass, indicating that a significant fraction of neighbour SMBHs in triple systems have grown very little since their formation. Even at the highest halo masses shown, the median N1 and N2 masses lag behind the Host by one to two orders of magnitude, and the 16th--84th percentile bands for the neighbours extend well down toward the seed mass floor.
+ 
+This mass asymmetry shows the following. The Host is the most massive SMBH in the system by construction, and in most cases it is the central black hole of the most massive galaxy involved in the merger. It has had the longest time to grow through gas accretion and merger events, and it resides in the deepest part of the local gravitational potential where gas inflow is most efficiently channelled. The neighbour SMBHs, on the other hand, are typically the central black holes of less massive infalling satellite galaxies. These satellites may have had limited star formation and SMBH growth histories prior to the merger, and their SMBHs may not have had access to sufficient gas reservoirs to grow substantially above the seed mass. When the satellite galaxy merges with the Host's galaxy and brings its SMBH into the $30\,\mathrm{kpc}$ search radius, the companion SMBH can satisfy our low luminosity threshold of $L_\mathrm{bol} > 10^{40}\,\mathrm{erg\,s^{-1}}$ even without significant prior growth, triggering a triple AGN classification.
+ 
+This result shows that triple AGN formation in Romulus25 does not require the secondary and tertiary SMBHs to have undergone significant growth. Rather, the defining condition for a triple system is that the dominant Host SMBH is sufficiently massive and actively accreting, and that two companion SMBHs are brought into its vicinity by galaxy merger activity. The triple AGN configuration may therefore in many cases \textit{precede} significant growth of the neighbour SMBHs, with the merger event itself potentially triggering the enhanced accretion that would eventually grow N1 and N2 to larger masses. This is broadly consistent with observations of confirmed triple AGN systems such as SDSS\,J0849+1114 \citep{Pfeifle2019} and UGC\,2369S \citep{Ding2025}, in which the three nuclei often span a wide range of luminosities and inferred masses, rather than being a symmetric ensemble of three comparably massive black holes.
+ 
+The large scatter in Host $M_\mathrm{BH}$ at fixed $M_{200}$, visible in the broad orange shaded region, reflects the stochastic nature of SMBH growth in Romulus25. At a given halo mass, the Host SMBH can span two to three orders of magnitude in mass, depending on the particular merger history of that halo. This is consistent with the well-known scatter in the $M_\mathrm{BH}$--$M_{200}$ relation seen in both observations and simulations \citep[e.g.][]{KormendyHo2013, Tremmel2017}, and is amplified here by the fact that the triple AGN sample spans all redshifts simultaneously. N1 and N2 show comparably large scatter in their own distributions, but the upper envelope of their distributions does not reach as high as that of the Hosts, confirming that the mass hierarchy is robust even accounting for the full spread in individual system properties.
+
+
+\subsubsection{Host Halo Mass Distribution of Triple AGN Systems}
+\label{subsubsec:halo_mass_dist}
+ 
+The top panel of Figure~\ref{fig:bhmass_halo} shows the distribution of host halo virial masses across all triple AGN system-snapshot instances. The distribution is peaked in the range $\log(M_{200}/M_\odot) \approx 10.5$--$11.0$, with a median of $\log(M_{200}/M_\odot) \approx 11.1$, a steep drop-off toward lower halo masses and a more extended tail toward higher masses. Three quarters (76\%) of triple AGN system-snapshot instances reside in halos of mass $10^{10}$--$10^{11.5}\,M_\odot$, corresponding to environments ranging from the upper end of isolated field galaxies to the lower end of galaxy group scales, while 7.7\% reside in halos above $10^{12}\,M_\odot$.
+ 
+The preference for intermediate-mass halos is physically intuitive. At the low-mass end, halos below $\sim 10^{10}\,M_\odot$ are less likely to have hosted multiple galaxy mergers, less likely to contain SMBHs that have grown substantially above the seed mass, and less likely to have the deep potential wells required to retain gas and sustain AGN activity in three nuclei simultaneously. At the high-mass end, halos above $\sim 10^{12}\,M_\odot$ are comparatively rare in the $(25\,\mathrm{cMpc})^3$ Romulus25 volume, which limits the number of triple systems they can contribute, although they still host a non-negligible fraction of the population. The intermediate halo mass range of $10^{10.5}$--$10^{11}\,M_\odot$ therefore contains the largest number of triple AGN systems, combining halos massive enough to have undergone the multiple mergers needed to assemble three SMBHs in close proximity with the abundance of such halos in the simulation volume.
+ 
+This halo mass preference is broadly consistent with results from the dual AGN analysis of \citet{Saeedzadeh2024}, who found that dual AGN host halos tend toward the higher end of the single AGN halo mass distribution, peaking at $\sim 3 \times 10^{11}\,M_\odot$. The somewhat lower typical halo mass of the triple AGN population (median $\approx 1.2 \times 10^{11}\,M_\odot$) likely reflects the lower luminosity threshold we adopt. By including lower-luminosity systems, we recover triple configurations in less massive halos where the companion SMBHs are near-seed-mass objects that would not be classified as AGNs at the $10^{43}\,\mathrm{erg\,s^{-1}}$ threshold. Repeating the analysis at higher luminosity thresholds is expected to shift the halo mass distribution upward, as only the most gas-rich and most massive environments would be capable of sustaining three simultaneously luminous AGNs.
+ 
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{figure10_bh_halo_mass.jpeg}
+    \caption{SMBH mass $M_\mathrm{BH}$ as a function of host halo virial mass $M_{200}$ for all three members of identified triple AGN systems in Romulus25, accumulated across all redshifts $0 \leq z \leq 3$. Each point represents a single AGN in a single snapshot, colour-coded by membership role. Host (orange circles), Neighbour~1 (cyan squares), and Neighbour~2 (green triangles). Solid lines show the median $M_\mathrm{BH}$ in bins of $M_{200}$ for each population, and shaded regions enclose the 16th--84th percentile scatter. The top panel shows the halo mass distribution of all triple AGN system-snapshot instances. The Host SMBHs are systematically and substantially more massive than N1 and N2 across the full halo mass range, with median Host masses exceeding neighbour masses by one to two orders of magnitude at any given $M_{200}$. N1 and N2 remain close to or just above the SMBH seed mass of $10^6\,M_\odot$ in many cases. The halo mass distribution peaks at $\log(M_{200}/M_\odot) \approx 10.5$--$11.0$.}
+    \label{fig:bhmass_halo}
+\end{figure}
+
+\subsubsection{Redshift Evolution: Preferential Growth at Low Mass}
+\label{subsubsec:lbol_redshift}
+ 
+The most physically informative trend in Figure~\ref{fig:lbol_mass} emerges from comparing the three panels across redshift. The increase in the number of data points from $z = 0.06$ to $z = 1.50$ is not uniform across the $L_\mathrm{bol}$--$M_\mathrm{BH}$ plane. Instead, the growth in the AGN population is strongly concentrated at low SMBH masses, in the regime $M_\mathrm{BH} \lesssim 10^7\,M_\odot$. The pile-up of points near the seed mass floor at $10^6\,M_\odot$ becomes dramatically more pronounced at higher redshift, while the high-mass end of the distribution ($M_\mathrm{BH} \gtrsim 10^8\,M_\odot$) changes comparatively little between the three panels.
+ 
+This asymmetric growth reflects the underlying physics of SMBH assembly in a hierarchical universe. At early cosmic times, the SMBH population is dominated by recently seeded black holes that have had relatively little time to grow through accretion. Many of these low-mass SMBHs are nevertheless accreting at rates sufficient to exceed our $10^{40}\,\mathrm{erg\,s^{-1}}$ luminosity threshold, particularly during the merger-driven gas inflows that bring them into close proximity with a Host AGN. By low redshift, many of these seed-mass SMBHs have either grown substantially through accretion or merged with more massive black holes, depleting the low-mass end of the AGN population. The high-mass end, by contrast, is populated by SMBHs that have already assembled most of their mass by $z \sim 1$--$2$, consistent with the well-established ``downsizing'' picture of AGN evolution in which the most massive black holes complete their growth earlier than lower-mass ones \citep[e.g.][]{Marconi2004}.
+ 
+For both dual and triple AGN populations, this means that the systems most readily observable at low redshift represent only the most massive, fastest-growing tail of a much larger population that was predominantly composed of low-mass, low-luminosity systems at earlier times. This has direct observational consequences. Surveys sensitive only to AGNs above $L_\mathrm{bol} \sim 10^{43}\,\mathrm{erg\,s^{-1}}$ will miss the bulk of the triple AGN population at all redshifts, but will miss a progressively larger fraction of the true population at higher redshift where near-seed-mass systems dominate the counts.
+ 
+The broad overlap between the dual and triple populations in this diagram also confirms that there is no sharp luminosity or mass scale that uniquely identifies triple AGN membership. Triple systems are not simply the brightest or most massive AGN configurations; they are distinguished by their spatial multiplicity and the mass hierarchy between members established in Section~\ref{subsec:bhmass_halo}, rather than by any special property of their individual luminosities.
+ 
+\begin{figure*}
+    \centering
+    \includegraphics[width=\columnwidth]{figure4_lbol_mass.jpeg}
+    \caption{Bolometric luminosity $L_\mathrm{bol}$ as a function of SMBH mass $M_\mathrm{BH}$ for individual AGNs belonging to dual (blue squares) or triple (red triangles) systems in Romulus25, shown at three representative redshifts: $z = 0.06$ (top), $z = 1.00$ (middle), and $z = 1.50$ (bottom). Each point represents a single AGN member of its respective system type at that snapshot. The hard lower boundaries at $M_\mathrm{BH} = 10^6\,M_\odot$ and $L_\mathrm{bol} = 10^{40}\,\mathrm{erg\,s^{-1}}$ reflect the SMBH seed mass and the fiducial luminosity threshold of this study. Dual and triple AGN members broadly overlap in this plane at all three redshifts, with no sharp luminosity or mass scale separating the two populations. The increase in data points from $z = 0.06$ to $z = 1.50$ is strongly concentrated at low SMBH masses ($M_\mathrm{BH} \lesssim 10^7\,M_\odot$), reflecting the dominance of recently seeded, near-seed-mass SMBHs at earlier cosmic times and the preferential depletion of this low-mass population toward lower redshift through accretion and mergers. The dual AGN sample is drawn from the same Romulus25 data for direct comparison, following the identification framework of \citet{Saeedzadeh2024}.}
+    \label{fig:lbol_mass}
+\end{figure*}
+
+
+
+
+% ------------------------------------------------------------
+\subsection{Luminosity--Mass Distributions by Triple AGN Member Role}
+\label{subsec:hexbin}
+ 
+Figure~\ref{fig:hexbin} presents hexagonally binned density maps of bolometric luminosity $L_\mathrm{bol}$ versus SMBH mass $M_\mathrm{BH}$ separately for the Host (orange, top), Neighbour~1 (blue, middle), and Neighbour~2 (green, bottom), accumulated across all triple AGN system-snapshot instances from $z = 0$ to $z = 3$. The colour scale in each panel encodes the number of system-snapshot instances per hexbin on a logarithmic scale. This figure complements the previous two Figures (~\ref{fig:bhmass_halo} and~\ref{fig:lbol_mass}) by revealing the full two-dimensional distribution of each member role in the luminosity--mass plane simultaneously, rather than projecting onto a single axis or showing individual points at fixed redshifts.
+ 
+\subsubsection{The Host AGN: Broad and Luminous}
+\label{subsubsec:hexbin_host}
+ 
+The Host AGN panel occupies the widest region of the $L_\mathrm{bol}$--$M_\mathrm{BH}$ plane of the three members. The mass distribution extends from the seed mass floor at $\log(M_\mathrm{BH}/M_\odot) = 6.0$ out to $\log(M_\mathrm{BH}/M_\odot) \approx 9.5$, and the luminosity distribution spans from the threshold floor at $\log(L_\mathrm{bol}) = 40$ up to $\log(L_\mathrm{bol}) \approx 46\,\mathrm{erg\,s^{-1}}$. The highest density of system-snapshot instances is concentrated in the region $\log(M_\mathrm{BH}/M_\odot) \approx 6.5$--$7.5$ and $\log(L_\mathrm{bol}) \approx 42$--$43\,\mathrm{erg\,s^{-1}}$, where the hexbins reach counts of several tens. The distribution broadens substantially at intermediate masses ($\log(M_\mathrm{BH}/M_\odot) \approx 7$--$8$), reflecting a wide range of accretion rates at a given mass, before thinning out toward the high-mass, high-luminosity corner where the most massive and most luminous Hosts are found.
+ 
+A positive correlation between $L_\mathrm{bol}$ and $M_\mathrm{BH}$ is visible in the Host distribution, as expected from the fundamental relationship between SMBH mass, accretion rate, and luminosity. However, the scatter around this trend is large. At any given mass, the Host luminosity spans two to three orders of magnitude, reflecting the highly variable accretion histories of SMBHs in a cosmological simulation where gas availability fluctuates with the merger and star formation state of the host galaxy. Some Hosts at relatively modest masses ($\log M_\mathrm{BH} \sim 7$) are found at luminosities approaching $10^{45}\,\mathrm{erg\,s^{-1}}$, implying accretion near or above the Eddington limit, while others at the same mass accrete near the threshold luminosity. This diversity in Eddington ratio reflects the range of local gas environments in which triple AGN Hosts are found, from highly gas-rich merging systems to more quiescent configurations where a prior merger has brought two neighbours into proximity without strongly refuelling the central black hole.
+ 
+\subsubsection{Neighbour 1: Intermediate Confinement}
+\label{subsubsec:hexbin_n1}
+ 
+The N1 panel reveals a population that is substantially more confined in SMBH mass than the Host, but which retains a broad luminosity range. The mass distribution is effectively truncated above $\log(M_\mathrm{BH}/M_\odot) \approx 8$, with the highest density hexbins concentrated in the range $\log(M_\mathrm{BH}/M_\odot) = 6.0$--$7.0$. The peak of the N1 distribution is shifted to lower masses and lower luminosities relative to the Host. The densest hexbins cluster around $\log(M_\mathrm{BH}/M_\odot) \approx 6.0$--$6.5$ and $\log(L_\mathrm{bol}) \approx 40$--$42\,\mathrm{erg\,s^{-1}}$. Nevertheless, a non-negligible tail of N1 members extends to $\log(L_\mathrm{bol}) \approx 44$--$45\,\mathrm{erg\,s^{-1}}$ even at low masses, indicating that some N1 SMBHs are accreting at high Eddington ratios, likely triggered by the gas compression and inflows associated with the merger event that created the triple configuration.
+ 
+The overall morphology of the N1 distribution is broadly consistent with the picture of N1 as the central SMBH of a moderately massive infalling satellite galaxy. More massive than the least-significant companion, but not as evolved or as centrally embedded as the Host. The truncation of the mass distribution at $\sim 10^8\,M_\odot$ reflects the fact that N1, despite being the second most massive member, typically occupies a shallower potential well than the Host and has had less access to the sustained gas reservoirs needed to grow to very high masses.
+ 
+\subsubsection{Neighbour 2: Seed-Mass Dominated}
+\label{subsubsec:hexbin_n2}
+ 
+The N2 panel presents the most extreme confinement of the three members. The vast majority of N2 SMBH masses are clustered within a narrow strip immediately above the seed mass floor, with the mass distribution essentially truncated at $\log(M_\mathrm{BH}/M_\odot) \approx 7.5$ and the highest density hexbins concentrated at $\log(M_\mathrm{BH}/M_\odot) = 6.0$--$6.5$. The luminosity range for N2 is correspondingly more restricted than that of either the Host or N1, with the distribution dropping off steeply above $\log(L_\mathrm{bol}) \approx 43\,\mathrm{erg\,s^{-1}}$ and the densest bins clustering near the threshold floor.
+ 
+The extreme concentration of N2 near the seed mass is one of the most physically significant results of this analysis. It demonstrates unambiguously that the least massive member of a triple AGN system in Romulus25 is, in the majority of cases, a SMBH that has grown very little since its formation. These near-seed-mass SMBHs satisfy our $10^{40}\,\mathrm{erg\,s^{-1}}$ luminosity threshold because even a tiny accretion rate is sufficient to cross this low floor (see Section~\ref{subsubsec:mass_asymmetry}). The merger event that brings N2 into the $30\,\mathrm{kpc}$ neighbourhood of the Host may itself provide the gas perturbation needed to push the accretion rate above this threshold, even in a SMBH that was essentially dormant beforehand.
+ 
+Despite the mass confinement, a small number of N2 members are found at luminosities of $10^{43}$--$10^{44}\,\mathrm{erg\,s^{-1}}$, implying Eddington ratios of order unity or above for $\sim 10^6\,M_\odot$ objects. These outliers likely represent cases where the gas inflow triggered by the merger event has been particularly efficient at funnelling material toward the least massive SMBH, temporarily driving a near-Eddington accretion episode. Such instances have analogues in the dual AGN literature. \citet{Saeedzadeh2024} noted similar behaviour for secondary SMBHs in dual systems near pericentric passage, where enhanced local gas density can temporarily boost the luminosity of the less massive member above that of its more massive companion.
+
+Taken together, the three panels tell a coherent story. Moving from Host to N1 to N2, the occupied region of the $L_\mathrm{bol}$--$M_\mathrm{BH}$ plane shrinks systematically in both dimensions. The maximum SMBH mass decreases from $\sim 10^{9.5}\,M_\odot$ to $\sim 10^8\,M_\odot$ to $\sim 10^{7.5}\,M_\odot$, and the peak luminosity shifts progressively downward. This reinforces the central result of Section~\ref{subsec:bhmass_halo}, triple AGN systems in Romulus25 are characterised by a strongly asymmetric SMBH mass hierarchy, with the Host dominating and the neighbours (particularly N2) typically contributing near-seed-mass black holes that are only marginally active above our luminosity floor. If the majority of triple AGN neighbours are accreting at luminosities of $10^{40}$--$10^{42}\,\mathrm{erg\,s^{-1}}$, they will be undetectable to surveys sensitive only above $10^{43}\,\mathrm{erg\,s^{-1}}$, suggesting the underlying triple AGN population may be far more common than the observed sample implies.
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=\columnwidth,height=0.72\textheight,keepaspectratio]{figure8_mass_luminosity_hexbin.jpeg}
+    \caption{Hexagonally binned density maps of bolometric luminosity $L_\mathrm{bol}$ versus SMBH mass $M_\mathrm{BH}$ for the Host AGN (orange, top), Neighbour~1 (blue, middle), and Neighbour~2 (green, bottom), accumulated across all triple AGN system-snapshot instances from $z = 0$ to $z = 3$. The colour scale encodes the number of system-snapshot instances per hexbin on a logarithmic scale. The hard boundaries at $\log(M_\mathrm{BH}/M_\odot) = 6.0$ and $\log(L_\mathrm{bol}) = 40\,\mathrm{erg\,s^{-1}}$ reflect the SMBH seed mass and fiducial luminosity threshold. Moving from Host to N1 to N2, the occupied region of this plane shrinks systematically. The maximum SMBH mass decreases from $\sim 10^{9.5}\,M_\odot$ (Host) to $\sim 10^8\,M_\odot$ (N1) to $\sim 10^{7.5}\,M_\odot$ (N2), and the peak luminosity shifts progressively downward. The N2 population is overwhelmingly concentrated near the seed mass floor.}
+    \label{fig:hexbin}
+\end{figure*}
+
+
+
+% ------------------------------------------------------------
+\subsection{Luminosity Ratios and Mass Ratios Between Triple AGN Members}
+\label{subsec:ratios}
+ 
+Figure~\ref{fig:ratios} shows hexagonally binned density maps of the logarithmic luminosity ratio $\log_{10}(L_1/L_2)$ versus the logarithmic mass ratio $\log_{10}(M_1/M_2)$ for each of the three pairwise combinations of triple AGN members. Host vs N1 (orange, top), Host vs N2 (blue, middle), and N1 vs N2 (green, bottom), accumulated across all system-snapshot instances from $z = 0$ to $z = 3$. In each panel, the dashed horizontal line marks equal luminosity ($\log_{10}(L_1/L_2) = 0$) and the dotted vertical line marks equal mass ($\log_{10}(M_1/M_2) = 0$). By construction of the membership ranking, $M_1 \geq M_2$ in all three pairings, so all data points lie at or to the right of the equal-mass line. The luminosity ratio, however, is not constrained by the ranking and can take either sign, meaning the less massive member can in principle outshine the more massive one.
+ 
+\subsubsection{Host vs Neighbour 1: Large Mass Ratio, Decoupled Luminosity}
+\label{subsubsec:ratio_hostn1}
+ 
+The Host vs N1 panel spans the widest range of mass ratios of the three pairings, extending from near-equal mass at $\log_{10}(M_\mathrm{Host}/M_\mathrm{N1}) \approx 0$ out to $\sim 2.8$ dex, meaning the Host can be more than 600 times more massive than N1 in the most extreme cases. The highest-density region of the distribution is concentrated at mass ratios of $\log_{10}(M_1/M_2) \approx 0$--$1$ dex and luminosity ratios of $\log_{10}(L_1/L_2) \approx 1$--$3$ dex, indicating that in the most common configurations the Host is between 10 and 1,000 times more luminous than N1. This is consistent with the mass hierarchy established in Section~\ref{subsec:bhmass_halo}. A more massive Host accreting at a comparable Eddington ratio will naturally produce a higher luminosity than a lower-mass N1.
+ 
+However, the distribution extends substantially both above and below the equal-luminosity line across the full range of mass ratios. A broad tail below $\log_{10}(L_1/L_2) = 0$, where N1 outshines the Host, is visible even at mass ratios of 1--2 dex, demonstrating that the less massive SMBH can exceed the luminosity of the dominant Host under some conditions. As discussed in the context of dual AGNs by \citet{Saeedzadeh2024}, this occurs when the less massive black hole is passing through a region of locally higher gas density, for example near pericentric passage, and temporarily accretes at a higher Eddington ratio than the Host. The wide spread in luminosity ratio at fixed mass ratio, spanning roughly 6--8 orders of magnitude in $L_\mathrm{Host}/L_\mathrm{N1}$, is the central quantitative result of this panel. It confirms that the instantaneous luminosity of an AGN is only loosely tied to its SMBH mass, and is instead governed primarily by the local gas supply and Eddington ratio at the time of observation. Mass is a poor predictor of luminosity in the dynamically complex environments that produce triple AGN systems.
+ 
+\subsubsection{Host vs Neighbour 2: More Extreme Mass Dominance}
+\label{subsubsec:ratio_hostn2}
+ 
+The Host vs N2 panel shows a qualitatively similar structure to the Host vs N1 comparison, but with the distribution shifted to larger mass ratios. The peak of the density map is concentrated at $\log_{10}(M_\mathrm{Host}/M_\mathrm{N2}) \approx 0.5$--$1.5$ dex and $\log_{10}(L_\mathrm{Host}/L_\mathrm{N2}) \approx 1$--$3$ dex, with a tail extending to mass ratios of $\sim 3$ dex, Host SMBHs up to $\sim 1{,}000$ times more massive than N2. This is a direct consequence of N2 being the least massive and least evolved member of the triple, as established by the N2 mass distribution in Figure~\ref{fig:hexbin}. When N2 is a near-seed-mass SMBH at $\sim 10^6\,M_\odot$ and the Host has grown to $\sim 10^8$--$10^9\,M_\odot$, the resulting mass ratio will naturally be enormous.
+ 
+Despite these large mass ratios, the luminosity ratio distribution for Host vs N2 remains relatively broad, and again extends below the equal-luminosity line. The cases in which N2 outshines the Host are rarer than for the Host vs N1 pairing, as expected given the more extreme mass disadvantage of N2, but they are not negligible. The persistence of sub-unity luminosity ratios even at mass ratios of 1--2 dex underscores the conclusion drawn from the previous panel. Eddington ratio variability, driven by local gas dynamics and merger-induced accretion episodes, can occasionally reverse the luminosity ordering even between very unequal-mass pairs.
+ 
+\subsubsection{Neighbour 1 vs Neighbour 2: Similar Masses, Divergent Luminosities}
+\label{subsubsec:ratio_n1n2}
+ 
+The most physically revealing panel is the N1 vs N2 comparison, and it tells a qualitatively different story from the two Host-involving pairs. The mass ratio distribution is strongly concentrated near zero, with the vast majority of system-snapshot instances falling in the range $\log_{10}(M_\mathrm{N1}/M_\mathrm{N2}) \approx 0$--$0.75$, corresponding to mass ratios of less than a factor of $\sim 6$ between the two neighbours. While N1 is always more massive than N2 by construction, the two are in practice drawn from a very similar mass population. Both tend to be low-mass, near-seed-mass SMBHs as shown in Figure~\ref{fig:hexbin}, and the difference in mass between the second and third members of a triple system is far smaller than the difference between either neighbour and the Host.
+ 
+This near-equality in mass between N1 and N2 is a physically important result. It implies that the distinction between the second and third most massive SMBHs in a triple system is not a meaningful physical classification in most cases, they are, to good approximation, interchangeable members drawn from the same underlying population of low-mass companion SMBHs. The mass-based ranking of N1 above N2 is formally correct but practically arbitrary when the two masses differ by less than an order of magnitude. The physical hierarchy in a triple AGN system is therefore better described as a binary distinction. One dominant central SMBH (the Host) and two low-mass companions (N1 and N2), rather than a clean three-tier ordering.
+ 
+Despite this near-equality in mass, the luminosity ratio between N1 and N2 spans a wide range, from $\log_{10}(L_\mathrm{N1}/L_\mathrm{N2}) \approx -3$ to $+4$, with roughly symmetric scatter about the equal-luminosity line. This wide spread at small mass ratios reinforces the conclusion from the Host-involving panels: luminosity is decoupled from mass in the dynamically active environments of triple AGN systems, and two SMBHs of nearly identical mass can differ in luminosity by several orders of magnitude depending on their local gas environments at the time of observation. The broad scatter on both sides of the equal-luminosity line for the N1--N2 pair also shows that the luminosity ordering of these two members is only weakly tied to their mass ordering. N2 is the more luminous of the two neighbours in 37\% of systems, even though N1 is formally the more massive.
+ 
+\subsubsection{Synthesis: Mass Ratio Governs Structure, Not Luminosity}
+\label{subsubsec:ratio_synthesis}
+ 
+Across all three panels of Figure~\ref{fig:ratios}, a consistent theme emerges. The mass ratios between triple AGN members reflect a well-defined hierarchy, Host $\gg$ N1 $\approx$ N2 in mass, that is stable and physically meaningful. The luminosity ratios, by contrast, scatter widely at any given mass ratio, and frequently invert the mass ordering. This decoupling of luminosity from mass within triple AGN systems is not surprising. It is a well-established feature of AGN populations in general, where Eddington ratios span several orders of magnitude at any given SMBH mass. In the merger-rich environments of triple AGN systems, where gas flows are highly disturbed and episodic accretion is the norm, this decoupling is expected to be especially pronounced.
+ 
+\begin{figure*}
+    \centering
+    \includegraphics[width=\columnwidth,height=0.72\textheight,keepaspectratio]{figure9_ratio_hexbin.jpeg}
+    \caption{Hexagonally binned density maps of the logarithmic luminosity ratio $\log_{10}(L_1/L_2)$ versus the logarithmic mass ratio $\log_{10}(M_1/M_2)$ for each pairwise combination of triple AGN members. Host vs N1 (orange, top), Host vs N2 (blue, middle), and N1 vs N2 (green, bottom), accumulated across all system-snapshot instances from $z = 0$ to $z = 3$. The dashed horizontal line marks equal luminosity and the dotted vertical line marks equal mass. By construction, all points lie at or to the right of the equal-mass line, but the luminosity ratio is unconstrained and can take either sign. The Host vs N1 and Host vs N2 panels show mass ratios extending to $\sim 2$--$3$ dex; the Host is generally but not always more luminous. The N1 vs N2 panel reveals that the two neighbours have somewhat similar masses (ratios below $\sim 0.75$ dex) while their luminosity ratios span a wide, approximately symmetric range about the equal-luminosity line. Across all panels, the wide spread in luminosity ratio at fixed mass ratio demonstrates that instantaneous AGN luminosity is driven primarily by local Eddington ratio variability rather than SMBH mass.}
+    \label{fig:ratios}
+\end{figure*}
+
+% ----------------
+
+\subsubsection{The Distribution of Luminosity Ratios}
+\label{subsubsec:lum_ratios_1d}
+
+The hexagonally binned maps of Figure~\ref{fig:ratios} show the joint distribution of luminosity and mass ratios for each pair of members. Figure~\ref{fig:lum_ratios_1d} isolates the luminosity dimension alone, showing the one-dimensional distributions of $\log_{10}(L_\mathrm{Host}/L_\mathrm{N1})$ and $\log_{10}(L_\mathrm{Host}/L_\mathrm{N2})$ accumulated over all system-snapshot instances from $z = 0$ to $z = 3$, together with their cumulative distributions. Members are ranked by mass throughout, following Section~\ref{subsec:identification}, so the Host is the most massive member of each system and not necessarily the most luminous.
+
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.9\textwidth]{luminosity_ratios.jpeg}
+    \caption{Distributions of the logarithmic luminosity ratios between the Host and each of its two neighbours in physical triple AGN systems, accumulated across all system-snapshot instances from $z = 0$ to $z = 3$. Members are ranked by SMBH mass, following Section~\ref{subsec:identification}, so the Host is the most massive member rather than necessarily the most luminous. \textit{Left:} Probability densities of $\log_{10}(L_\mathrm{Host}/L_\mathrm{N1})$ (blue) and $\log_{10}(L_\mathrm{Host}/L_\mathrm{N2})$ (red), with median ratios of 11.0 and 27.2 respectively indicated by the dashed vertical lines. The dotted vertical line marks equal luminosity. \textit{Right:} The corresponding cumulative distributions, with the 50th and 84th percentiles indicated. Both distributions extend well below the equal-luminosity line, indicating that the most massive member is not always the brightest. The breadth of both distributions, spanning roughly eight orders of magnitude, reflects the dominant role of Eddington ratio variability in setting the instantaneous luminosity contrast within a triple system.}
+    \label{fig:lum_ratios_1d}
+\end{figure*}
+
+The Host is typically the dominant source. The median ratios are $L_\mathrm{Host}/L_\mathrm{N1} = 11.0$ and $L_\mathrm{Host}/L_\mathrm{N2} = 27.2$, so the most massive member outshines its more massive companion by roughly an order of magnitude and its least massive companion by a factor of a few tens. The ordering of the two medians follows directly from the mass hierarchy established in Section~\ref{subsec:bhmass_halo}. N2 is on average the least massive and least evolved member, and therefore the faintest. Both distributions are broad and approximately log-normal in shape, spanning some eight orders of magnitude in total, from $\log_{10}(L_\mathrm{Host}/L_\mathrm{Neighbour}) \approx -4$ to $\approx +6$. This width is itself the salient result. A spread of several decades in luminosity ratio at fixed membership role confirms that the instantaneous luminosity contrast within a triple system is governed by the local gas supply rather than by the mass ordering of its members.
+
+The cumulative distributions in the right-hand panel quantify how often the mass ordering and the luminosity ordering disagree. Approximately 22\% of system-snapshot instances lie below $\log_{10}(L_\mathrm{Host}/L_\mathrm{N1}) = 0$, meaning that the second most massive member is the brighter of the two, and approximately 13\% lie below the equal-luminosity line for the Host--N2 pair. Taken together, the most massive member fails to be the most luminous in 27\% of systems. Such inversions arise when a lower-mass neighbour passes through a region of locally enhanced gas density, most commonly near pericentre, and briefly accretes at a higher Eddington ratio than the Host. Analogous behaviour was reported for the secondary members of dual AGN systems by \citet{Saeedzadeh2024}.
+
+This frequency of inversion carries a practical consequence for the interpretation of the ratios reported here. Because members are ranked by mass, the quantities plotted in Figure~\ref{fig:lum_ratios_1d} are not the same as the ratios between the brightest and fainter members of a system, which are the quantities relevant to detectability. The mass-ranked ratios are the more meaningful when the question concerns the SMBHs themselves and their assembly histories, since mass is a stable property while luminosity fluctuates on much shorter timescales. We return to the luminosity-ranked description in Section~\ref{subsec:brightest_share}, where we quantify how much of the total system luminosity the brightest member carries.
+
+% ------------------------------------------------------------
+\subsection{Triple AGN System Lifetimes}
+\label{subsec:lifetimes}
+ 
+All of the analysis presented so far has treated triple AGN systems as instantaneous snapshot detections, accumulating system-snapshot instances across redshift without distinguishing between systems that persist for many snapshots and those that satisfy the selection criteria only once. To characterise the temporal dimension of the triple AGN population, we tracked each unique system identified in Romulus25 across consecutive snapshots, measuring the total span of time over which it continuously satisfied the triple AGN criteria. We define the ``lifetime'' of a triple AGN system as the elapsed time between the first and last snapshot in which it is identified, with a system contributing a lifetime of zero if it appears in only a single snapshot.
+ 
+Figure~\ref{fig:lifetimes} shows the resulting lifetime distributions. The top panel includes all 1,397 unique triple AGN systems identified across $z = 0$--$3$, while the bottom panel isolates the 548 multi-snapshot systems (those with lifetime $> 0$), for which meaningful lifetime statistics can be computed. The multi-snapshot subsample has a median lifetime of $\mathbf{1.44\,\mathrm{Gyr}}$ and a mean of $\mathbf{2.17\,\mathrm{Gyr}}$, with a tail extending to $\sim 11\,\mathrm{Gyr}$ for the longest-lived systems.
+ 
+\subsubsection{Dominance of Short-Lived Systems}
+\label{subsubsec:lifetime_short}
+ 
+The most noticeable feature of the top panel is the overwhelming dominance of single-snapshot systems. 849 of the 1,397 unique systems, or approximately 61\%, appear in only one snapshot and therefore have a measured lifetime of zero. This immediately establishes that the majority of triple AGN configurations in Romulus25 are transient events rather than long-lived stable configurations. These single-snapshot detections reflect systems in which the three-way AGN classification is satisfied only briefly, perhaps during a single pericentric passage that simultaneously activates all three SMBHs above the luminosity threshold, after which the configuration dissolves as the members separate, merge, or their accretion rates drop below the threshold.
+ 
+It is important to note that ``single-snapshot'' does not necessarily mean that the three SMBHs were only spatially co-located for a single snapshot interval. The three members may have remained within $30\,\mathrm{kpc}$ of one another for an extended period, but one or more members may have temporarily dropped below the luminosity threshold, perhaps during a quiescent phase between pericentric passages, preventing the system from being classified as a triple AGN in the intervening snapshots. The lifetime as measured here is therefore a lower bound on the true duration of the physical three-body configuration, and is sensitive to the duty cycle of AGN activity as well as to the orbital evolution of the system.
+ 
+\subsubsection{The Multi-Snapshot Population}
+\label{subsubsec:lifetime_multi}
+ 
+Among the 548 multi-snapshot systems shown in the bottom panel, the lifetime distribution is strongly right-skewed, with the majority of systems having lifetimes below $\sim 1$--$2\,\mathrm{Gyr}$ and a long tail extending to $\sim 11\,\mathrm{Gyr}$. The median lifetime of $1.44\,\mathrm{Gyr}$ and mean of $2.17\,\mathrm{Gyr}$ place the typical continuously-active triple AGN configuration on the scale of a few billion years, comparable to the dynamical timescales associated with galaxy mergers and the orbital decay of SMBH pairs in intermediate-mass halos \citep[e.g.][]{Tremmel2018}. Systems with lifetimes above $\sim 5\,\mathrm{Gyr}$ are rare but not absent, and represent configurations in which the three members remain in close proximity and all stay above the luminosity threshold for a substantial fraction of the age of the Universe.
+ 
+The long tail of the distribution is physically significant. Systems that persist as triple AGNs for several Gyr must maintain both the spatial proximity of all three members, requiring that orbital decay keeps them within the $30\,\mathrm{kpc}$ search radius, and the continuous AGN activity of all three, requiring a sustained gas supply to all three SMBHs over that timescale. These long-lived systems likely correspond to configurations in which the three SMBHs are embedded in a deep, gas-rich common potential well that provides a stable reservoir for accretion over many orbital periods, rather than relying on brief merger-driven gas inflows. They represent the small subset of triple AGN configurations that are most analogous to the confirmed observational systems, which by definition have all three nuclei active at the time of observation.
+ 
+The mean lifetime of $2.17\,\mathrm{Gyr}$ for multi-snapshot systems appears somewhat longer than the typical dual AGN active phase found by \citet{Saeedzadeh2024} in Romulus25, but this comparison cannot be made cleanly. The very different luminosity thresholds, $10^{40}\,\mathrm{erg\,s^{-1}}$ here versus $10^{43}\,\mathrm{erg\,s^{-1}}$ in \citeauthor{Saeedzadeh2024}, mean that a much lower accretion rate is sufficient to qualify a SMBH as an AGN in our census, naturally extending the apparent active lifetime of any given configuration. At the higher threshold of \citet{Saeedzadeh2024}, many of the long-lived triple systems identified here would fall below the luminosity cut for one or more members, and their measured lifetimes would be correspondingly shorter. Any apparent difference in duration between triple and dual populations should therefore be interpreted with this caveat in mind.
+ 
+% ------------------------------------------------------------
+\subsection{A Case Study: A Long-Lived Triple AGN System}
+\label{subsec:case_study}
+ 
+To illustrate the physical character of long-lived triple AGN configurations in Romulus25, Figure~\ref{fig:gasdensity} presents gas column density maps of one of the longest-lived triple AGN systems in the simulation (centred on Host SMBH ID 1981916424), which is first identified at $z = 2.98$ and last at $z = 0.13$, a span of $\sim 10\,\mathrm{Gyr}$, shown at three representative snapshots spanning its evolution: $z = 2.93$ (snapshot 001302, top), $z = 2.01$ (snapshot 001931, middle), and $z = 1.79$ (snapshot 002159, bottom). Each panel shows a $\sim 15 \times 15\,\mathrm{kpc}$ physical region centred on the Host SMBH, with the positions of Host, N1, and N2 marked by red circles. The colour scale encodes gas column density in units of $\mathrm{g\,cm}^{-2}$, with bright yellow regions indicating the densest gas concentrations and dark purple regions indicating the diffuse surrounding medium.
+ 
+The three panels capture the evolution of this system from an early, relatively open configuration to a progressively more compact and dynamically advanced one. At $z = 2.93$ (top panel), the three SMBHs are arranged in an approximately triangular configuration, with N2 separated from the Host--N1 pair by $\sim 4$--$5\,\mathrm{kpc}$. The gas distribution is clumpy and filamentary, with multiple bright knots indicating dense star-forming regions distributed across the field, characteristic of the turbulent, gas-rich environment of the high-redshift Universe. The Host and N1 are already closely co-located near the central gas concentration, while N2 sits in a lower-density region offset from the main body of the system, suggesting it is still approaching from an infalling satellite galaxy.
+ 
+By $z = 2.01$ (middle panel), the configuration has tightened considerably. All three SMBHs are now clustered within $\sim 2$--$3\,\mathrm{kpc}$ of one another, with N1 just above and N2 just below the Host in projection. The gas distribution has become more centrally concentrated, with the brightest regions funnelled toward the common centre of mass of the three-body system. This snapshot illustrates the classic picture of an advanced triple merger. Three active nuclei embedded in a shared, gas-rich potential well, each being simultaneously fed by the inflow of material from the disrupted interstellar media of their parent galaxies.
+ 
+At $z = 1.79$ (bottom panel), the system shows a more asymmetric configuration. The Host and N1 remain nearly co-located at the centre, but N2 has moved to a projected separation of $\sim 5$--$6\,\mathrm{kpc}$ to the lower left, suggesting that it has passed through pericenter and is now on an outgoing orbit. The gas distribution has become more disturbed and less centrally concentrated relative to the $z = 2.01$ snapshot, consistent with the dynamical heating and redistribution of gas that accompanies repeated pericentric passages in a multi-body merger.
+ 
+Taken together, the three snapshots illustrate the range of spatial configurations and gas environments that a single long-lived triple AGN system can pass through during its lifetime. The system does not remain in a fixed geometric arrangement but instead evolves dynamically as the three members orbit one another, with the gas distribution responding to the changing gravitational potential on comparable timescales.
+ 
+These gas column density maps represent individual frames from longer time-series sequences. For each unique triple AGN system tracked across multiple snapshots, it is possible to compile the individual snapshot frames into short video sequences that animate the orbital evolution of the three SMBHs and the response of the surrounding gas over the full system lifetime. Such animations provide an intuitive visualisation of the diversity of triple AGN evolutionary pathways present in Romulus25, from rapidly merging systems where two members coalesce within a few hundred Myr, to long-lived configurations like this system where the three SMBHs remain active and spatially associated for several Gyr.
+ 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{triple_agn_lifetime_distribution.jpeg}
+    \caption{Lifetime distributions of unique triple AGN systems from $z = 0$ to $z = 3$ ($N_\mathrm{tot} = 1{,}397$). \textit{Top:} Distribution including all unique systems, with single-snapshot detections (lifetime $= 0$) dominating at $N = 849$ (61\% of all systems). \textit{Bottom:} Distribution restricted to the 548 multi-snapshot systems (lifetime $> 0$), with the median lifetime of $1.44\,\mathrm{Gyr}$ (dotted yellow line) and mean of $2.17\,\mathrm{Gyr}$ (dashed red line) indicated. The strong peak at zero in the top panel reflects the transient, episodic nature of triple AGN activity at the fiducial luminosity threshold of $10^{40}\,\mathrm{erg\,s^{-1}}$. Most configurations are only briefly active in all three members simultaneously. The multi-snapshot population shows a right-skewed distribution with a tail extending to $\sim 11\,\mathrm{Gyr}$, with longer-lived systems corresponding to deeply embedded configurations in gas-rich halos where sustained accretion maintains AGN activity in all three members over extended periods.}
+    \label{fig:lifetimes}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.32\textwidth]{GasDensityMap_snap001302_BH1981916424.png}
+    \includegraphics[width=0.32\textwidth]{GasDensityMap_snap001931_BH1981916424.png}
+    \includegraphics[width=0.32\textwidth]{GasDensityMap_snap002159_BH1981916424.png}
+    \caption{Gas column density maps of one of the longest-lived triple AGN systems in Romulus25 (Host SMBH ID 1981916424), shown at three snapshots spanning its evolution. \textit{Left:} $z = 2.93$ (snapshot 001302), showing an open triangular configuration with N2 offset $\sim 4$--$5\,\mathrm{kpc}$ from the Host--N1 pair in a clumpy, filamentary gas environment characteristic of the high-redshift Universe. \textit{Middle:} $z = 2.01$ (snapshot 001931), where all three members have drawn together within $\sim 2$--$3\,\mathrm{kpc}$ and the gas has become more centrally concentrated around the common potential well. \textit{Right:} $z = 1.79$ (snapshot 002159), showing a more asymmetric configuration in which N2 has moved to a projected separation of $\sim 5-6\,\mathrm{kpc}$, suggesting it has passed through pericenter and is on an outgoing orbit. Red circles mark the positions of Host, N1, and N2 in each panel. The white bar indicates a physical scale of $10\,\mathrm{kpc}$. The colour scale encodes gas column density in $\mathrm{g\,cm}^{-2}$. Each snapshot shown here is a single frame from a longer time-series sequence; the full evolutionary trajectory of this and other multi-snapshot systems can be animated by compiling individual snapshot frames into short video sequences.}
+    \label{fig:gasdensity}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Triple AGN System Fates}
+\label{subsec:fates}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{plot_1.jpeg}
+    \caption{Terminal fate classification of all triple AGN episodes, where an episode is a contiguous run of snapshots over which a system continuously satisfies the triple AGN selection criteria. Episodes separated by gaps of three or more consecutive snapshots are treated as distinct events; gaps of two snapshots or fewer are bridged and counted as a single episode, eliminating spurious classifications arising from transient luminosity dropouts. Episodes are classified as Ejection (one member departs the 30 kpc search radius while all three SMBHs survive intact), Passer-By (a transient third member passes through the neighbourhood of an already-stable, pre-existing dual AGN), Merger (one member is absorbed via direct SMBH coalescence), or Ongoing (the episode is still active at the final catalogued snapshot). The population is dominated by Ejection (84.3\%), with Passer-By (8.5\%), Merger (6.3\%), and Ongoing (0.9\%) contributing the remainder. No episodes fell into the residual Unknown category. The rarity of direct mergers relative to the $\sim$70\% merger fraction found for dual AGNs by \citet{Saeedzadeh2024} suggests that triple AGN configurations typically resolve via ejection back to a dual configuration rather than through direct three-body coalescence.}
+    \label{fig:fates}
+\end{figure}
+
+
+
+
+\begin{figure}[]
+    \centering
+    \includegraphics[width=1\linewidth]{plot_rs.jpeg}
+    \caption{Redshift evolution of triple AGN episode fates. Left: Absolute number of episodes in each of ten redshift bins spanning $z = 0$ to $z = 3$, stacked and coloured by terminal fate (Ejection, Passer-By, Merger, Ongoing), as classified in Section~\ref{subsec:fates}. Right: The same data normalised to the fractional breakdown of fates within each redshift bin. Ejection dominates at all redshifts ($\sim 74$--$91\%$). The Merger fraction is small ($\sim 5$--$10\%$) in every redshift bin, with no clear redshift trend. The sharp rise in the Ongoing fraction in the lowest-redshift bin is a right-censoring artefact of the finite redshift range probed by the simulation, rather than a physical signature of enhanced low-redshift stability.}
+    \label{fig:fates_z}
+\end{figure}
+
+The lifetime analysis presented in Section~\ref{subsec:lifetimes} characterised how long triple AGN systems persist, but did not address how they cease to satisfy the triple AGN criteria. To close this gap, we classify the fate of every triple AGN episode in the census, an episode being defined as a contiguous run of consecutive snapshots over which a given system continuously satisfies the selection criteria of Section~\ref{subsec:identification}. Gaps of two or fewer consecutive snapshots between appearances of the same system are bridged into a single episode, eliminating spurious classifications that would otherwise arise from transient luminosity dropouts — instances where one member briefly falls below the $10^{40}\,\mathrm{erg\,s^{-1}}$ threshold before recovering within one or two snapshots. Only gaps of three or more consecutive snapshots are treated as genuine dissolutions, generating a new, distinct episode upon the system's reappearance.
+
+Because a single physical configuration of three SMBHs may dissolve and later reform — for instance, if one member is scattered beyond the 30 kpc search radius before returning in a later epoch — the total number of episodes (2,047) exceeds the number of unique triple AGN systems identified in Section~\ref{subsec:lifetimes} (1,397). The difference of 650 episodes represents genuine re-entry events in which the same three SMBHs briefly ceased to satisfy the triple AGN selection criteria before reforming as a triple. These re-entries are not artefacts; each dissolution episode carries a distinct terminal fate and is classified independently.
+
+For each episode we determine its terminal fate at the snapshot immediately following its final detection, applying the following classification in priority order. An episode is labelled Ongoing if it is still active at the final catalogued snapshot, such that its ultimate fate lies beyond the redshift range probed by this study. Failing this, an episode is labelled a Merger if one of its three constituent SMBHs is absent from the halo catalogue at the subsequent snapshot, indicating that it has been dynamically merged with and absorbed by another black hole. An episode is labelled Passer-By if the same two SMBHs were already identified as an active dual AGN in the snapshot immediately preceding the episode and remain an active dual in the snapshot immediately following it, indicating that the third member was a transient intruder passing through the 30 kpc neighbourhood of an otherwise stable, pre-existing pair. Finally, an episode in which all three SMBHs survive intact and neither the merger nor passer-by conditions are met is labelled an Ejection, reflecting the departure of one member beyond the 30 kpc separation threshold. A residual Unknown category is reserved for cases in which the halo catalogue for the subsequent snapshot is unavailable, precluding a definitive classification; no episodes in our census fell into this category, confirming that the AHF halo catalogues are complete across all snapshots used in this analysis.
+
+Figure~\ref{fig:fates} shows the resulting distribution of terminal fates across all triple AGN episodes identified in Romulus25. The classification is overwhelmingly dominated by Ejection, which accounts for 1,726 of 2,047 episodes (84.3\%). Passer-By episodes account for a further 173 (8.5\%), while Merger and Ongoing episodes are comparatively rare, at 129 (6.3\%) and 19 (0.9\%) respectively.
+
+The dominance of the Ejection channel is a direct dynamical signature of the three-body physics introduced in Section~\ref{subsec:triple_theory}. When a third SMBH is brought within 30 kpc of an already-interacting pair, the resulting three-body interaction efficiently exchanges energy and angular momentum between the members. Rather than proceeding smoothly toward a bound, coalescing triple configuration, the more common outcome is that this energy exchange drives one member, typically the least massive and most weakly bound, onto a wider orbit that carries it back beyond the search radius. We caution that "ejection" as classified here is an operational statement about the 30 kpc selection boundary rather than a claim of dynamical unbinding to large radii; a SMBH classified as ejected may remain gravitationally bound to the host halo on a wider orbit, or may re-enter the 30 kpc neighbourhood in a later episode. This finding is consistent with the wide-tailed maximum-separation behaviour noted in Section~\ref{subsubsec:sep_vs_z}, where we speculated that some low-redshift systems with large maximum separations reflect a member that has been scattered onto a wide orbit following a three-body encounter; the fate classification presented here provides direct, population-level support for that interpretation.
+
+The comparatively small Passer-By fraction (8.5\%) indicates that the triple AGN population identified in this work is not, for the most part, an artefact of transient flybys superposed on an otherwise unperturbed dual AGN. Only about one in twelve episodes represents a case where a stable pre-existing pair briefly and passively acquired a third, uninvolved neighbour. The remaining episodes involve a genuine three-body reconfiguration of the system, consistent with the picture developed in Sections~\ref{subsec:bhmass_halo}--\ref{subsec:ratios} in which the neighbour SMBHs are dynamically and physically coupled to the Host rather than incidental bystanders.
+
+Perhaps the most notable result in Figure~\ref{fig:fates} is the rarity of direct SMBH--SMBH mergers within a triple episode, accounting for only 6.3\% of all outcomes. This stands in sharp contrast to the dual AGN population studied by \citet{Saeedzadeh2024}, who found that approximately 70\% of SMBH pairs in dual systems eventually coalesce. Taken together, these results suggest that triple AGN configurations do not typically resolve themselves through direct three-body coalescence, but rather through the ejection of one member, which returns the system to a dual configuration. The subsequent fate of that remaining pair, in particular whether it goes on to merge, is governed by the same dual AGN merger physics characterised by \citet{Saeedzadeh2024} and lies outside the fate classification adopted here, but the connection between the two results raises the possibility that triple AGN encounters serve as an efficient channel for re-hardening a stalled SMBH binary and accelerating its approach to coalescence, precisely the mechanism proposed as a resolution to the final parsec problem in Section~\ref{subsec:triple_theory}.
+
+The small Ongoing fraction (0.9\%) simply reflects right-censoring at the final catalogued snapshot of the simulation and carries no independent physical significance. Figure~\ref{fig:fates_z} examines whether the terminal fate of a triple AGN episode depends on redshift. The left panel shows the absolute number of episodes of each fate type in ten redshift bins spanning $z = 0$ to $z = 3$, while the right panel shows the same information normalised to the fractional breakdown within each bin.
+
+Ejection remains the dominant fate at every redshift probed, consistently accounting for roughly 74--91\% of episodes across the full range shown in the right panel. This confirms that the three-body dynamics driving the ejection channel are not a special feature of any particular epoch, but operate with comparable efficiency throughout the redshift range in which triple AGN systems are found. The mild redshift dependence visible in the ejection fraction, drifting from $\sim 91\%$ at $z \sim 2.7$--$3$ down to $\sim 74\%$ in the lowest-redshift bin, is compensated primarily by a modest rise in Passer-By and Ongoing episodes at low redshift rather than by any evolution in the Merger channel itself.
+
+The Merger fraction, by contrast, shows no clear redshift trend. It remains small but non-negligible, at $\sim 5$--$10\%$, in every redshift bin from $z = 3$ to $z \approx 0$. Direct coalescence within a triple episode is therefore a minor but persistent channel at all epochs probed, rather than one confined to the early Universe.
+
+The Passer-By fraction fluctuates in the range $\sim 3$--$12\%$ with no strong monotonic trend across redshift, consistent with its interpretation as reflecting the largely stochastic incidence of a third, dynamically uninvolved SMBH transiting the 30 kpc neighbourhood of a pre-existing stable pair. This is not obviously tied to the broader cosmic evolution of merger or accretion rates, and the absence of a clear trend supports that interpretation. The Ongoing fraction is negligible across most of the redshift range but rises sharply in the lowest-redshift bin, where it accounts for approximately $9\%$ of episodes. This is a right-censoring artefact rather than a physical effect. Episodes in the lowest-redshift bin are, by construction, the ones closest to the final catalogued snapshot of the simulation ($z = 0$), and therefore have the least opportunity to be tracked through to a terminal fate before the simulation ends. This should not be interpreted as evidence that triple AGN systems at low redshift are intrinsically more long-lived or stable than their high-redshift counterparts. Taken together, Figure~\ref{fig:fates_z} demonstrates that the overall preference for ejection over merger as a terminal fate is a robust feature of triple AGN dynamics at all redshifts, with the small residual Merger channel operating at a similar level throughout.
+
+Among the 129 Merger episodes, the SMBH that disappears is most often Neighbour~1 (59), followed by Neighbour~2 (42) and the Host (28), as shown in Figure~\ref{fig:merger_roles}. The Host, which sits deepest in the potential and is the most massive member, is the least likely to be the black hole that is absorbed, consistent with mergers typically consuming one of the two companions into the dominant SMBH. Neighbour~1 is lost more often than Neighbour~2, which may reflect its shorter separation from the Host (Section~\ref{subsec:separations}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{plot12.jpeg}
+    \caption{Membership role of the merging SMBH at the final snapshot of each Merger episode ($N = 129$): Host (28), Neighbour~1 (59), and Neighbour~2 (42). The Host is the member least often lost to direct coalescence.}
+    \label{fig:merger_roles}
+\end{figure}
+
+
+% ------------------------------------------------------------
+\subsection{The Parent Population of Black Hole Systems}
+\label{subsec:parent_population}
+
+Every result presented so far concerns systems that already satisfy the triple AGN selection of Section~\ref{subsec:identification}, in which all three members are required to exceed the fiducial luminosity threshold. Such a sample cannot by itself distinguish between two quite different origins for the redshift evolution seen in Figure~\ref{fig:frequency}. Either a genuine increase in the rate at which three SMBHs are brought into close proximity, or an increase in the fraction of those SMBHs that happen to be accreting above the threshold at any given moment. Nor can it address how the census would change were the detection requirement relaxed, which is the situation faced by any observational search in which one or two nuclei fall below the sensitivity limit. To address both questions we construct a parent sample that is defined without reference to luminosity.
+
+We link every SMBH in a snapshot to all others lying within $30\,\mathrm{kpc}$ and identify the connected sets, a friends-of-friends decomposition with a $30\,\mathrm{kpc}$ linking length. Each SMBH belongs to exactly one group, so the groups partition the population without duplication and no configuration is discarded for containing more than three members. Groups are then classified by the number of members exceeding $L_\mathrm{bol} = 10^{40}\,\mathrm{erg\,s^{-1}}$. We consider two parent samples. All groups containing at least three SMBHs, which admits richer configurations in which more than three black holes lie in mutual proximity, and strict black hole triples containing exactly three SMBHs with no fourth SMBH within $30\,\mathrm{kpc}$ of any member. The latter is the closest analogue to the idealised picture of an isolated three-body system, while the former is the more complete description of the environments in which triple AGN are actually found.
+
+Figure~\ref{fig:physical_baseline} shows the resulting abundances. The parent sample of systems with at least three SMBHs declines from $\sim 400$ per snapshot at $z = 3$ to $\sim 190$ at $z \approx 0.06$, and the strict triples from $\sim 100$ to $\sim 67$ over the same interval. Part of this decline is geometric. A fixed proper separation encloses a smaller comoving volume at higher redshift, so SMBHs are more readily found within $30\,\mathrm{kpc}$ of one another at early times, the same effect noted in Section~\ref{subsec:frequency} in connection with the rise in triple AGN counts. The decline of the parent sample is nonetheless gradual and monotonic, in marked contrast to the behaviour of the luminosity-selected subsets.
+
+The luminosity classification evolves far more strongly than the parent sample. At $z = 3$, systems with three or more AGN account for $\sim 260$ of $\sim 400$ systems with at least three SMBHs, or roughly 65\%, whereas by $z < 0.3$ this fraction has fallen to $\sim$20\%, and systems containing a single AGN become the most common class. Because the parent sample varies smoothly and only mildly over the same interval, the sharp decline in multiple-AGN systems toward low redshift must be driven almost entirely by the decline in SMBH accretion rates, and not by any change in how SMBHs cluster on $30\,\mathrm{kpc}$ scales. This confirms the interpretation offered in Section~\ref{subsec:frequency}, where the rise in triple AGN counts with redshift was attributed to the global rise in AGN activity. The clustering of SMBHs contributes, but the AGN duty cycle dominates.
+
+The right-hand panel of Figure~\ref{fig:physical_baseline} quantifies how the census depends on the number of members required to be detectable. Among the $\sim 99$ strict black hole triples at $z = 3$, $\sim 19$ per snapshot have all three members above the threshold, $\sim 34$ have exactly two, $\sim 35$ have exactly one, and $\sim 11$ have none. At $z \approx 0.2$ the corresponding numbers are $\sim 6$, $\sim 15$, $\sim 32$, and $\sim 22$ out of $\sim 75$. Relaxing the requirement from three detections to two therefore increases the number of qualifying systems by a factor of $\sim 3.5$ at low redshift ($\sim 2.8$ at $z = 3$), and relaxing it to a single detection by a factor of $\sim 9$ ($\sim 4.6$ at $z = 3$). The implication for observational searches is direct. A survey capable of confirming AGN activity in only one or two of three nuclei, with the remaining components identified morphologically, probes a substantially larger population than one requiring three spectroscopic confirmations, and the gain is largest at low redshift where the triple AGN population is otherwise sparsest.
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth]{physical_baseline_vs_z-thr1e40.jpeg}
+    \caption{Baseline abundances of black hole systems in Romulus25 as a function of redshift, with all counts given per simulation volume per snapshot. \textit{Left:} Systems containing at least three SMBHs, defined as friends-of-friends groups with a linking length of $30\,\mathrm{kpc}$ and no luminosity cut (black), subdivided by the number of members exceeding the fiducial threshold $L_\mathrm{bol} > 10^{40}\,\mathrm{erg\,s^{-1}}$ (grey, blue, orange, and red for exactly 0, 1, 2, and $\geq 3$ AGN). These four curves sum to the black curve. Also shown are the triple AGN identified by the selection of Section~\ref{subsec:identification} (dark red, open circles), which reproduce the counts of Figure~\ref{fig:frequency}, and the subset of those with no additional SMBH of any luminosity within $30\,\mathrm{kpc}$ of the search centre (dark red, dashed). \textit{Right:} Strict black hole triples, that is, groups containing exactly three SMBHs with no fourth SMBH within $30\,\mathrm{kpc}$ of any member (black), subdivided in the same way by the number of members above the threshold. In both panels the parent sample is defined without reference to luminosity, so the evolution of the coloured curves relative to the black curve isolates the effect of the AGN duty cycle from that of black hole clustering.}
+    \label{fig:physical_baseline}
+\end{figure*}
+
+
+\subsection{The Dominance of the Brightest Member}
+\label{subsec:brightest_share}
+
+The mass hierarchy established in Section~\ref{subsec:bhmass_halo} and the pairwise ratios of Section~\ref{subsec:ratios} describe the internal structure of triple AGN systems in terms of their members' individual properties. For comparison with observations it is more useful to ask a related but distinct question. If all three nuclei were observed simultaneously, how much of the combined emission would come from a single member? We therefore rank the three members of each system by luminosity rather than by mass, writing $L_1 \geq L_2 \geq L_3$, and consider the fraction of the total system luminosity carried by the brightest member, $L_1 / (L_1 + L_2 + L_3)$. This quantity is bounded below by $1/3$, which corresponds to three equally luminous nuclei, and approaches unity when a single AGN dominates completely.
+
+Figure~\ref{fig:brightest_share} shows the resulting distribution. The brightest member carries a median 88\% of the total luminosity of its system, and more than 90\% in 46\% of all systems, producing the pronounced pile-up against the upper bound visible in the figure. Systems in which the three nuclei contribute comparably are correspondingly rare. Fewer than 5\% of systems have $L_1 / (L_1 + L_2 + L_3) < 0.45$, and the distribution falls away steeply toward the equal-luminosity limit. Expressed as ratios between individual members, the median values are $L_1 / L_2 \approx 9$ and $L_1 / L_3 \approx 71$, so the faintest member of a typical triple is roughly two orders of magnitude less luminous than the brightest.
+
+This is the single most consequential result of our analysis for observational searches. A system that satisfies our triple AGN criteria will, in most cases, present as one luminous nucleus accompanied by two much fainter companions, rather than as three comparably bright nuclei. Confirming all three components therefore requires sensitivity well below the luminosity of the brightest member, typically by two orders of magnitude, and not merely sufficient angular resolution to separate them. Combined with the compact separations reported in Section~\ref{subsec:separations}, this implies that the limiting factor for detecting the bulk of the simulated population is dynamic range as much as spatial resolution. It also offers a natural explanation for the heterogeneous character of the confirmed observational sample, in which the three nuclei typically span a wide range of inferred luminosities rather than forming a symmetric ensemble \citep{Pfeifle2019, Koss2025}.
+
+The dominance of the brightest member follows directly from the structure established in Sections~\ref{subsec:bhmass_halo} and \ref{subsec:hexbin}. The Host SMBH is typically one to two orders of magnitude more massive than either neighbour, and although instantaneous luminosity is only loosely tied to mass, the Host still accretes from the deepest part of the local potential where gas inflow is most efficiently channelled. We note, however, that the brightest member is not always the most massive one. Consistent with the luminosity inversions discussed in Section~\ref{subsubsec:lum_ratios_1d}, the Host is the most luminous member in only 73\% of systems, so the ranking adopted here and the mass-based ranking used elsewhere in this work do not in general select the same object.
+
+Figure~\ref{fig:brightest_share} also compares the physical systems identified in three dimensions with the projected systems selected in Section~\ref{subsec:projected_vs_physical}. The two distributions are indistinguishable, with identical medians of 0.88. We do not quote a formal two-sample test, because the two samples are not independent: most projected triples are the same three black holes as a physical triple, and each snapshot is viewed along three axes. Selecting triple AGN in projection therefore does not bias the internal luminosity structure of the resulting sample, a point we return to in Section~\ref{subsec:projected_vs_physical}. Finally, we caution that the degree of dominance depends on the adopted luminosity threshold. At our fiducial $10^{40}\,\mathrm{erg\,s^{-1}}$ the faintest member of a typical system lies close to the threshold itself, whereas a higher threshold necessarily excludes systems with faint third members and compresses the distribution toward smaller values of $L_1 / (L_1 + L_2 + L_3)$.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{brightest_agn_share-thr1e40.jpeg}
+    \caption{Fraction of the total bolometric luminosity of a triple AGN system carried by its brightest member, $L_1 / (L_1 + L_2 + L_3)$, where the three members are ranked by luminosity rather than by mass. Physical systems identified in three dimensions (red, solid) are compared with the projected systems of Section~\ref{subsec:projected_vs_physical} (blue, dashed); the two distributions are indistinguishable, with identical medians of 0.88. The dotted vertical line at $1/3$ marks the limit of three equally luminous nuclei. The distribution rises steeply toward unity, with the brightest member carrying more than 90\% of the system luminosity in 46\% of systems, indicating that a typical triple AGN presents as one luminous nucleus accompanied by two substantially fainter companions.}
+    \label{fig:brightest_share}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsection{The Projected Population}
+\label{subsec:projected_baseline}
+
+All results presented so far are based on three-dimensional separations, which are directly accessible in the simulation but not in observations. An observer measures a projected separation on the sky and a line-of-sight velocity difference inferred from redshifts, and cannot distinguish a physically bound triple from a chance superposition of nuclei at comparable redshift. To assess how this limitation shapes the observed census, we repeat the selection using a cylindrical aperture oriented along the line of sight, as described in Section~\ref{subsec:projected_selection}. The cylinder has a face radius of $30\,\mathrm{kpc}$, matching the search radius used in three dimensions, and a half-length set by the velocity window $\Delta v_\mathrm{los} = \pm 500\,\mathrm{km\,s^{-1}}$ through the Hubble flow, giving a total length $2000\,\Delta v_\mathrm{los} / H(z)$. For the Romulus25 cosmology this corresponds to $\sim 14.7\,\mathrm{Mpc}$ at $z = 0$, falling to $\sim 3.3\,\mathrm{Mpc}$ at $z = 3$. The cylinder is therefore an extremely elongated volume, and the velocity criterion rather than the projected separation is what limits the line-of-sight extent of the resulting systems. Each snapshot is viewed along each of the three coordinate axes in turn, and all counts in this section are quoted per line of sight, that is, as the mean over the three viewing directions.
+
+Figure~\ref{fig:projected_baseline} shows the resulting abundances, constructed so as to mirror Figure~\ref{fig:physical_baseline} panel for panel. The parent sample of projected systems containing at least three SMBHs rises from $\sim 194$ per line of sight at $z \approx 0.2$ to $\sim 387$ at $z = 3$, and the strict projected triples from $\sim 67$ to $\sim 92$ over the same interval. Both curves rise toward higher redshift, as do their three-dimensional counterparts in Figure~\ref{fig:physical_baseline}, though the two trends arise from partially different causes. In projection the cylinder is longest at low redshift, where $H(z)$ is smallest, so the volume searched per system shrinks by more than a factor of four between $z = 0$ and $z = 3$. That the projected counts nonetheless increase with redshift indicates that the growth in the number of close SMBH associations outweighs the contraction of the search volume, as it does in three dimensions.
+
+The AGN classification again evolves more strongly than the parent sample. At $z = 3$, $\sim 331$ of the $\sim 387$ projected systems with at least three SMBHs contain at least two AGN, and $\sim 256$ contain three or more, whereas at $z \approx 0.2$ the corresponding numbers fall to $\sim 88$ and $\sim 45$ out of $\sim 194$. The decline toward low redshift is steeper for the more demanding classifications, exactly as found for the physical systems in Section~\ref{subsec:parent_population}, and for the same reason. The availability of three simultaneously accreting SMBHs, rather than their spatial coincidence, is the limiting factor at late times.
+
+The right-hand panel addresses the question of how the census changes when fewer than three nuclei are required to be detected. Among strict projected triples at $z = 3$, $\sim 20$ per line of sight have all three members above the fiducial threshold, $\sim 34$ have exactly two, $\sim 29$ have exactly one, and $\sim 9$ have none. At $z \approx 0.2$ the corresponding numbers are $\sim 5$, $\sim 14$, $\sim 27$, and $\sim 21$ out of $\sim 67$. Relaxing the detection requirement from three nuclei to two therefore increases the number of qualifying systems by a factor of $\sim 3.8$ at low redshift and $\sim 2.7$ at $z = 3$, and relaxing it to a single nucleus increases it by a factor of $\sim 9$ and $\sim 4$ respectively. The practical implication is that a search which identifies candidate triple systems morphologically and requires spectroscopic AGN confirmation in only one or two components accesses a substantially larger population than one demanding three confirmations, with the greatest gain at low redshift where the fully active population is sparsest.
+
+Two curves in the left-hand panel anticipate the comparison developed in Section~\ref{subsec:projected_vs_physical}. The triple AGN selected in projection, that is, cylinders centred on an AGN and containing exactly three AGN irrespective of any fainter SMBHs also present, number $\sim 25$ per line of sight at $z \approx 0.2$ rising to $\sim 93$ at $z = 3$. These counts exceed the three-dimensional triple AGN counts of Figure~\ref{fig:frequency} at every redshift, as expected if projection admits systems that are not physically associated. The subset of these projected systems whose three members are also mutually close in three dimensions, shown by the dashed curve, tracks the full projected sample closely, indicating that the contamination introduced by projection is modest. We quantify this statement in the following section.
+
+The shaded bands in both panels span the three orthogonal viewing directions and are narrow throughout, typically a few per cent of the plotted value. Because the same SMBHs are viewed three times, these bands measure the sensitivity of the counts to viewing geometry rather than a statistical uncertainty, and their narrowness indicates that no single projection axis of the simulation volume is strongly preferred.
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth]{projected_baseline_vs_z-zspace-zbins15.jpeg}
+    \caption{Baseline abundances of projected black hole systems in Romulus25 as a function of redshift, constructed to mirror Figure~\ref{fig:physical_baseline}. Counts are quoted per line of sight, that is, as the mean over the three orthogonal viewing directions, and shaded bands span the range across those directions. \textit{Left:} Projected systems containing at least three SMBHs, defined by linking SMBHs that share a cylindrical aperture of $30\,\mathrm{kpc}$ face radius and $\Delta v_\mathrm{los} = \pm 500\,\mathrm{km\,s^{-1}}$ with no luminosity cut (black), subdivided by the number of members exceeding $L_\mathrm{bol} > 10^{40}\,\mathrm{erg\,s^{-1}}$ (blue, orange, and red for $\geq 1$, $\geq 2$, and $\geq 3$ AGN). Also shown are projected triple AGN, defined as cylinders centred on an AGN and containing exactly three AGN irrespective of any fainter SMBHs present (dark red, open circles), and the subset of those whose members are also mutually close in three dimensions (dark red, dashed). \textit{Right:} Strict projected black hole triples, that is, cylinders containing exactly three SMBHs (black), subdivided by the number of members above the threshold into exactly 0, 1, 2, and 3 AGN. These four curves sum to the black curve. Note that the cylinder length $2000\,\Delta v_\mathrm{los}/H(z)$ decreases with redshift, from $\sim 14.7\,\mathrm{Mpc}$ at $z = 0$ to $\sim 3.3\,\mathrm{Mpc}$ at $z = 3$.}
+    \label{fig:projected_baseline}
+\end{figure*}
+
+
+\subsection{How Many Observed Triples Are Real?}
+\label{subsec:projected_vs_physical}
+
+The projected and physical selections can now be compared directly. Figure~\ref{fig:proj_vs_phys} shows, in the left-hand panel, the number of triple AGN identified in projection per line of sight alongside the number identified in three dimensions from the same snapshots, and in the right-hand panel the fraction of the projected systems that are also physically associated.
+
+The projected counts exceed the physical counts at essentially every redshift, rising from $\sim 22$ per line of sight at $z \approx 0.06$ to $\sim 95$ at $z = 3$, compared with $\sim 19$ and $\sim 85$ for the three-dimensional sample. Projection therefore inflates the census, but only modestly, by $\sim 10$--$20\%$ across the redshift range. This is a smaller excess than might be expected given the length of the cylindrical aperture. A cylinder of $30\,\mathrm{kpc}$ face radius and several Mpc length encloses a volume some two orders of magnitude larger than the corresponding sphere, yet the number of spurious triples it admits remains a minor correction. The explanation lies in the low space density of AGN in the simulation volume. Even at $z = 3$, where the AGN count per snapshot is highest (Figure~\ref{fig:agn_stats}), the expected number of unassociated AGN falling by chance within a given cylinder is small, so the overwhelming majority of projected triples are drawn from genuine physical associations rather than from chance superpositions.
+
+The right-hand panel quantifies this directly. Between 75\% and 93\% of projected triple AGN are physically associated, with a clear and monotonic decline from $\sim 90\%$ at $z < 1$ to $\sim 78\%$ by $z \approx 3$. The trend is readily understood. The comoving number density of AGN rises by roughly a factor of four over this interval (Section~\ref{subsec:agn_population}), increasing the probability that two or more unrelated nuclei fall within the same aperture, while the cylinder itself, although shorter at high redshift, still spans several Mpc. Chance alignment is therefore a growing but never dominant contaminant, accounting for roughly one projected triple in ten at low redshift and one in four at $z = 3$.
+
+Some care is required with the word ``real'' in this context, and we adopt two complementary definitions. The looser criterion, plotted in Figure~\ref{fig:proj_vs_phys}, is geometric. A projected triple is counted as physical if at least two of its three three-dimensional pairwise separations are smaller than the $30\,\mathrm{kpc}$ search radius, so that one member lies within $30\,\mathrm{kpc}$ of both others. This is the spatial configuration demanded by the three-dimensional selection of Section~\ref{subsec:identification}, but without that selection's additional requirements, namely that the central member have \textit{exactly} two AGN neighbours and that no member already belong to another system. The stricter criterion asks whether the same three SMBHs, identified by particle ID, in fact constitute a triple in the three-dimensional catalogue. Cross-matching the two catalogues on member identity, we find that 82\% of projected triple AGN satisfy this stricter test, compared with 86\% satisfying the geometric criterion, so the geometric flag overstates the strict recovery fraction by only 4 percentage points. The difference comprises systems whose three members are genuinely close in three dimensions but which the three-dimensional algorithm declines to classify as a triple, in most cases because a fourth AGN lies within $30\,\mathrm{kpc}$ of the central member and the system is more properly described as a higher-order multiple. Such systems are not projection artefacts; they are real associations of three active nuclei that fall outside our formal definition of a triple.
+
+The comparison can also be run in the opposite direction, asking what fraction of genuine triple AGN an observer viewing the simulation along a single axis would recover. We find that 89\% of three-dimensional triple AGN are recovered in projection along a given line of sight, declining from 95\% at $z < 1$ to 84\% at $z > 2$. The systems that are missed divide into two categories. In 97\% of cases the cylinder containing the three members also contains a fourth AGN, so an observer would classify the system as a quadruple rather than a triple. In the remaining 3\% the three members fail to share a cylinder, because their projected separations exceed $30\,\mathrm{kpc}$ for the particular viewing geometry or because their line-of-sight velocity differences exceed the adopted $\pm 500\,\mathrm{km\,s^{-1}}$ window. The velocity window itself almost never splits a genuine triple: only 0.6\% of three-dimensional triple AGN have a member offset by more than $500\,\mathrm{km\,s^{-1}}$ along a given line of sight, and these are concentrated in hosts with $M_{200} > 10^{12}\,M_\odot$.
+
+Taken together, these results support a favourable conclusion for observational searches. Projection inflates the triple AGN census by only $10$--$20\%$, and the contamination is modest and well characterised. About a fifth of the incorrectly admitted systems are real associations of three or more active nuclei that fall outside our formal triple definition; the remainder are chance projections. The dominant obstacle to assembling a complete census is therefore not the ambiguity introduced by projection, but the sensitivity limit discussed in Section~\ref{subsec:brightest_share}, since a typical triple AGN presents as one luminous nucleus with two companions fainter by one to two orders of magnitude.
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth]{projvsphys_counts_and_physical_fraction-zspace-thr1e40.jpeg}
+    \caption{Comparison of triple AGN identified in projection with those identified in three dimensions, using the same snapshots and the same fiducial threshold $L_\mathrm{bol} > 10^{40}\,\mathrm{erg\,s^{-1}}$. \textit{Left:} Number of projected triple AGN per line of sight, that is, the mean over the three orthogonal viewing directions (blue), the subset of those that are also physically associated (red, dashed), and the number of triple AGN identified in three dimensions by the selection of Section~\ref{subsec:identification} (black). The projected counts exceed the three-dimensional counts at essentially all redshifts. \textit{Right:} Fraction of projected triple AGN that are physically associated, declining from $\sim 90\%$ at $z < 1$ to $\sim 78\%$ at $z \approx 3$ as the rising AGN number density increases the chance of unrelated nuclei falling within the same aperture. A projected system is counted as physical here if at least two of its three three-dimensional pairwise separations are smaller than the $30\,\mathrm{kpc}$ search radius, so that one member lies within $30\,\mathrm{kpc}$ of both others. This is a purely geometric criterion and does not require that the three SMBHs be identified as a triple by the three-dimensional algorithm; the stricter identity-based comparison is discussed in the text.}
+    \label{fig:proj_vs_phys}
+\end{figure*}
+
+% ============================================================
+%  Section 4 — Summary and Conclusions
+%  Triple AGNs in Romulus25 | Spencer Lockwood
+% ============================================================
+\clearpage
+
+\section{Summary and Conclusions}
+\label{sec:conclusions}
+
+We have presented the first systematic census of triple active
+galactic nuclei in the Romulus25 cosmological hydrodynamical
+simulation, extending the dual AGN framework of
+\citet{Saeedzadeh2024} to the case of three simultaneously active
+supermassive black holes. Motivated by recent observational
+discoveries of kpc-scale triple AGN systems, most immediately
+the triple merger candidate UGC\,2369S \citep{Ding2025}, we
+identified and characterised triple AGN systems across the redshift
+range $0 \leq z \leq 3$ using a fiducial bolometric luminosity
+threshold of $L_\mathrm{bol} > 10^{40}\,\mathrm{erg\,s^{-1}}$ and
+a neighbour search radius of $30\,\mathrm{kpc}$. Romulus25 is
+uniquely suited to this analysis because its physically motivated
+sub-grid model for dynamical friction allows SMBHs to evolve on
+realistic orbital timescales and approach one another to sub-kpc
+separations, without the artificial repositioning that forces
+premature SMBH mergers in many other large-volume simulations.
+
+Our principal results are as follows.
+
+\subsection*{Triple AGNs Are a Natural Product of Hierarchical
+Assembly}
+
+Applying our selection criteria to all available Romulus25 snapshots,
+we identify 3,266 triple AGN system-snapshot instances, corresponding
+to 1,397 unique physical configurations. The instantaneous number of
+triple AGN systems rises steadily from $\sim 13$--$35$ at $z < 0.5$
+to a peak of 90 systems at $z = 2.93$, closely tracking the global
+rise in AGN number density and galaxy interaction rate at earlier
+cosmic times. This monotonic increase demonstrates that triple AGN
+configurations are not exotic outliers in the simulation, but a
+natural and recurring outcome of the hierarchical merging process
+that governs galaxy assembly. The fact that the triple AGN count
+rises with redshift despite the shrinking physical volume of the
+fixed comoving box confirms that the genuine increase in merger rate
+and AGN activity at high redshift more than compensates for the
+geometric suppression, pointing to the early Universe as the
+dominant epoch of triple AGN activity.
+
+\subsection*{Triple AGN Systems Are Compact and Merger-Driven}
+
+The pairwise separation distributions of triple AGN members are
+strongly concentrated below $5\,\mathrm{kpc}$, with median
+Host--N1, Host--N2, and N1--N2 separations of 2.9, 3.2, and
+3.8 kpc respectively. These separations are considerably
+smaller than those reported for most observationally confirmed triple
+AGN systems, including SDSS\,J0849+1114 \citep{Pfeifle2019},
+SDSS\,J1027+1749 \citep{Liu2011}, NGC\,7733--34 \citep{Keshri2025},
+and UGC\,2369S \citep{Ding2025}, which tend to have separations of
+several to tens of kpc. This discrepancy is not a physical
+inconsistency but rather a direct consequence of observational
+selection. Current imaging facilities cannot resolve multiple nuclei
+at sub-kpc separations, and confirmed systems are necessarily those
+in which all three components are sufficiently separated to be
+spatially distinguished. The simulation therefore predicts that the
+most common triple AGN configuration, three nuclei within
+$\sim 3$--$4\,\mathrm{kpc}$ of one another, currently lies below
+the resolution threshold of most observational surveys, and that the
+confirmed sample represents only the widest-separation tail of a
+larger underlying population.
+
+The ordering of the median separations, with Host--N1 $<$ Host--N2
+$<$ N1--N2, is physically meaningful. The Host occupies the deepest
+local gravitational potential well, and dynamical friction (which
+scales with SMBH mass) most efficiently draws the more massive
+members toward the centre. This ordering therefore reflects the
+mass-based hierarchy of the triple system and is a natural consequence
+of the same orbital decay physics that governs the evolution of dual
+SMBH systems. At fixed redshift, triple AGN systems in more massive
+halos tend to have somewhat larger separations, reflecting the
+physically larger environments of those halos and the longer orbital
+decay timescales associated with their higher velocity dispersions.
+At fixed halo mass below $M_{200} \approx 10^{11.2}\,M_\odot$, high-redshift systems are more compact than
+low-redshift ones, consistent with the denser and more gas-rich
+environments of the early Universe accelerating orbital energy
+dissipation. The larger maximum separations seen in some low-redshift
+systems may partly reflect three-body scattering events that have
+flung one member to a wide orbit while the remaining pair stays
+tightly bound, though tracking individual system histories would be
+required to confirm this interpretation.
+
+\subsection*{Triple AGN Formation Does Not Require Growth of the
+Companion SMBHs}
+
+The SMBH mass distributions of the three triple AGN members reveal a
+strongly asymmetric hierarchy. The Host SMBH, by construction the
+most massive member, spans several decades in mass up to
+$\sim 10^{9.5}\,M_\odot$ and shows a clear positive trend with host
+halo mass, rising from a few $\times 10^6\,M_\odot$ in the lowest-mass halos
+to $\sim 10^8\,M_\odot$ above $M_{200} \sim 10^{12}\,M_\odot$. The
+two neighbour SMBHs, by contrast, are overwhelmingly clustered near
+the simulation seed mass of $10^6\,M_\odot$. N1 is effectively
+truncated above $\sim 10^8\,M_\odot$, and N2 shows an extreme
+concentration near the seed mass floor with very few systems
+extending above $10^{7.5}\,M_\odot$. The median neighbour masses
+lag behind the Host by one to two orders of magnitude across the full
+range of halo masses probed.
+
+This result demonstrates that the formation of a triple AGN
+configuration in Romulus25 does not require, and in many cases
+precedes, significant growth of the secondary and tertiary SMBHs.
+The defining condition for a triple system is that the dominant Host
+SMBH is sufficiently massive and actively accreting, and that two
+companion SMBHs, possibly near-seed-mass objects from less massive
+infalling satellite galaxies, are brought into its $30\,\mathrm{kpc}$
+neighbourhood by galaxy merger activity.
+
+The luminosity ratios between members are broadly decoupled from
+their mass ratios. While the Host is on average 10--1,000 times more
+luminous than N1 and even more so relative to N2, a non-negligible
+fraction of systems show luminosity inversions in which a lower-mass
+neighbour outshines the Host. These cases are most common near
+pericentric passage, when locally enhanced gas density drives the
+companion SMBH to a temporarily elevated Eddington ratio, mirroring
+analogous behaviour seen in dual AGN systems by \citet{Saeedzadeh2024}.
+The near-equality in mass between N1 and N2, with the vast majority
+of N1/N2 mass ratios below a factor of $\sim 6$, implies that the
+two neighbours are drawn from the same underlying population of
+low-mass companion SMBHs. The physical structure of a triple AGN
+system in Romulus25 is therefore better described as a binary
+distinction, one dominant Host and two interchangeable low-mass
+companions, rather than a clean three-tier mass ordering.
+
+\subsection*{Triple AGN Systems Prefer Intermediate-Mass Halos}
+
+The host halo mass distribution of triple AGN systems peaks in the
+range $\log(M_{200}/M_\odot) \approx 10.5$--$11.0$, placing them
+preferentially in environments corresponding to the upper end of
+isolated field galaxies and the lower end of galaxy group scales.
+The low-mass cutoff reflects the reduced merger rate and shallower
+potential wells of less massive halos, which are less likely to
+assemble three SMBHs in close proximity. The decline at high masses
+reflects the rarity of group- and cluster-scale halos in the
+$(25\,\mathrm{cMpc})^3$ Romulus25 volume rather than an absence of
+triples in them: 7.7\% of triple AGN system-snapshot instances reside
+in halos above $10^{12}\,M_\odot$. The intermediate halo mass range of
+$10^{10.5}$--$10^{11}\,M_\odot$ hosts the largest number of systems,
+combining halos massive enough to have undergone the multiple mergers
+needed to assemble three SMBHs in proximity with the abundance of such
+halos in the simulation volume.
+
+\subsection*{Most Triple AGN Systems Are Short-Lived}
+
+Tracking each unique system across consecutive snapshots, we find
+that 849 of the 1,397 unique triple AGN systems (61\%) appear in
+only a single snapshot, indicating that the majority of triple
+configurations are transient events lasting less than one snapshot
+interval. These single-snapshot detections likely reflect brief
+pericentric-passage episodes in which all three SMBHs are
+simultaneously pushed above the luminosity threshold, after which
+the configuration dissolves as members separate, merge, or their
+accretion rates return below the threshold. Among the 548
+multi-snapshot systems, the lifetime distribution is strongly
+right-skewed, with a median of $1.44\,\mathrm{Gyr}$, a mean of
+$2.17\,\mathrm{Gyr}$, and a tail extending to $\sim 11\,\mathrm{Gyr}$
+for the longest-lived systems. Long-lived configurations likely
+correspond to systems in which all three SMBHs are deeply embedded
+in a common gas-rich potential well that sustains accretion in all
+three members over many orbital periods. These long-lived systems
+are the most direct simulation analogues of the currently confirmed
+observational triple AGN sample, which by construction requires all
+three nuclei to be simultaneously detectable.
+
+
+
+
+\newpage
+
+
+\nocite{*}
+\printbibliography
+\end{document}
